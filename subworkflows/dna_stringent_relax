@@ -1,0 +1,49 @@
+#!/usr/bin/env nextflow
+nextflow.enable.dsl=2
+
+params.pileups_threshold = 10
+
+include { REACHTOOLS_RMDUP2 }                   from '../modules/reachtools.mod.nf'
+include { SAMTOOLS_INDEX }                      from '../modules/samtools.mod.nf'
+include { SAMTOOLS_INDEX as SAMTOOLS_INDEX2 }   from '../modules/samtools.mod.nf'
+include { BAM2BED }                             from '../modules/yang_processes.mod.nf'
+include { READS_QC_EXTRACT_BC }                 from '../modules/yang_processes.mod.nf'
+include { SUMMARIZE_MAPPED_READ_CELLS }         from '../modules/yang_processes.mod.nf'
+include { COUNT_PILEUPS }                       from '../modules/yang_processes.mod.nf'
+include { REMOVE_PILEUPS }                      from '../modules/yang_processes.mod.nf'
+include { BAM2BED as BAM2BED2 }                 from '../modules/yang_processes.mod.nf'
+include { READS_QC_EXTRACT_BC as READS_QC_EXTRACT_BC2}     from '../modules/yang_processes.mod.nf'
+
+samtools_index_args = ""
+bam2bed_args = ''
+
+
+workflow DNA_STRINGENT_RELAX {
+
+    take:
+        sorted_reads // this is a tuple of val(name), path(mapped_reads)
+        trimmed_fastq
+
+    main:
+        SUMMARIZE_MAPPED_READ_CELLS(trimmed_fastq, sorted_reads, params.outdir)
+        REACHTOOLS_RMDUP2(sorted_reads, params.outdir)
+
+        SAMTOOLS_INDEX(REACHTOOLS_RMDUP2.out.reads, params.outdir, samtools_index_args, params.verbose)
+        BAM2BED(REACHTOOLS_RMDUP2.out.reads, SAMTOOLS_INDEX.out.bai, params.outdir, bam2bed_args)
+        READS_QC_EXTRACT_BC(BAM2BED.out.reads, params.outdir)
+
+        // // lines 302 and 303 are samtools sort and index, but we've already done that so I don't think we need to do it again.
+        COUNT_PILEUPS(REACHTOOLS_RMDUP2.out.reads, params.outdir)
+        REMOVE_PILEUPS(REACHTOOLS_RMDUP2.out.reads, COUNT_PILEUPS.out.tally, params.pileups_threshold, SAMTOOLS_INDEX.out.bai, params.outdir)
+        SAMTOOLS_INDEX2(REMOVE_PILEUPS.out.rmpile, params.outdir, samtools_index_args, params.verbose)
+        BAM2BED2(REMOVE_PILEUPS.out.rmpile, SAMTOOLS_INDEX2.out.bai, params.outdir, bam2bed_args)
+        // // the high pileup files are deleted in Yang's script after running reads.qc.extract.bc.pl, so we could remove the publishDir lines from some of the methods
+        READS_QC_EXTRACT_BC2(BAM2BED2.out.reads, params.outdir)
+
+    emit:
+        sorted = REACHTOOLS_RMDUP2.out
+        //sorted = BAM2BED_NOINDEX.out.reads
+       // sorted = SORT_DEDUP.out.reads
+}
+
+

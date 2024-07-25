@@ -1,0 +1,140 @@
+/*
+subworkflow  to cover this:
+lines 259-287 in Yang_run_pipeline.sh
+
+if [[ $conditions == "paired" || $conditions == "bulk" ]]
+        then
+        # sort by name/readid
+        samtools sort -n ${sample}_${genomes}_clean.bam -o ${sample}_${genomes}_clean2.bam      
+        # only keep prop paired mapping, paired reads mapped correct orientation (like R1 forward-R3 reverse, or R1 reverse-R2 forward); MAPQ >10
+        # still add rmdup for unify file names only
+        samtools view -q 10 -f 0x2 ${sample}_${genomes}_clean2.bam -o ${sample}_${genomes}_sorted.bam
+
+        bedtools bamtobed -i ${sample}_${genomes}_sorted.bam -bedpe >${sample}_${genomes}_sorted.bam.bed
+        ## Keep the read pairs that are on the same chromosome  #and fragment length less than 1000bp.
+        awk '$1==$4 {print $0}' ${sample}_${genomes}_sorted.bam.bed > ${sample}_${genomes}_sorted.bam.clean.bed 
+        # $1==$4 &&$6-$2 < 1000 
+        rm ${sample}_${genomes}_sorted.bam.bed
+
+        ## Only extract the fragment related columns and cellids, umi
+        cut -f 1,2,6,7 ${sample}_${genomes}_sorted.bam.clean.bed > ${sample}_${genomes}.bam.bed
+	sort -k1,1 -k2,2n -k3,3n ${sample}_${genomes}.bam.bed > ${sample}_${genomes}_sorted.bam.bed
+#       remove temp files
+#       rm ${sample}_${genomes}_sorted.bam.clean.bed 
+#       rm ${sample}_${genomes}_clean2.bam
+
+        pigz -p 30  ${sample}_${genomes}_sorted.bam.bed
+
+        perl /bi/home/wangy/projects/ctr_seq/scripts/reads.qc.extract.bc.pl     ${sample}_${genomes}_sorted.bam.bed.gz    $sampledir/$lanedir/$conditions
+        # unique chr, start, end, cellid, umi
+        cd  ${path}/08.matrix/${sampledir}/${lanedir}/$conditions
+	zcat ${sample}_${genomes}_sorted.reads.split.bc.tsv.gz |sort |uniq > ${sample}_${genomes}_sorted_rmdup.reads.split.bc.uniq.tsv
+        
+	pigz -p 30 gzip ${sample}_${genomes}_sorted_rmdup.reads.split.bc.uniq.tsv
+
+*/
+
+// to check how a bam file is sorted: samtools view -H *sorted.bam | grep SO
+// 
+// This will just take a bam file as input, not a tuple with the name
+
+//include { SAMTOOLS_SORT }              from '/bi/apps/nextflow/nextflow_pipelines/nf_modules/samtools.mod.nf'
+include { SAMTOOLS_INDEX }               from '/bi/apps/nextflow/nextflow_pipelines/nf_modules/samtools.mod.nf'
+include { BAM2BED_NOINDEX }              from '../modules/yang_processes.mod.nf'
+include { READS_QC_EXTRACT_BC }          from '../modules/yang_processes.mod.nf'
+include { SUMMARIZE_MAPPED_READ_CELLS }         from '../modules/yang_processes.mod.nf'
+
+bam2bed_args = "-bedpe"
+samtools_index_args = ""
+
+// ONLY KEEP UNIQUE READS
+process SAMTOOLS_SORT_FILT {
+
+    // 	tag "$bam"     // Adds name to job submission instead of (1), (2) etc.
+	label 'bigMem' // 20GB
+
+	input:
+        tuple val(name), path (bam)
+		//path(bam)	
+        val (outputdir)	
+
+	output:
+		tuple val(name), path ("*bam"), 	  emit: bam
+
+    publishDir "${outputdir}/nf_chosen_outputs",
+		mode: "link", overwrite: true
+		
+		"""
+		module load samtools
+        samtools sort -n ${bam} | samtools view -q 10 -f 0x2 -o ${name}_clean_sorted.bam
+        
+		"""	
+}
+
+// Only extract the fragment related columns and cellids, umi
+process FILTER_READS {
+
+    input:
+        tuple val(name), path(mapped_reads)
+        val (outputdir)
+        
+    output:
+        tuple val(name), path ("*.bed.gz"), emit: reads
+
+    publishDir "${outputdir}/nf_chosen_outputs",
+		mode: "link", overwrite: true
+
+    script:
+
+        """
+        awk '\$1==\$4 {print \$0}' ${mapped_reads}  | cut -f 1,2,6,7,9 | sort -k1,1 -k2,2n -k3,3n | pigz -p 30 > ${name}_sorted.bam.bed.gz
+        """
+}
+
+process SORT_DEDUP {
+
+    input:
+        tuple val(name), path(reads)
+        val (outputdir)
+        
+    output:
+        tuple val(name), path ("*.tsv.gz"), emit: reads
+
+    publishDir "${outputdir}/nf_chosen_outputs",
+		mode: "link", overwrite: true
+
+    script:
+
+        """
+        zcat ${reads} | sort | uniq | pigz -p 30 > ${name}_sorted_rmdup.reads.split.bc.uniq.tsv.gz
+        """
+}
+
+
+
+
+workflow DNA_PAIRED_BULK {
+
+    take:
+        //mapped_bams
+        mapped_reads // this is a tuple of val(name), path(mapped_reads)
+        trimmed_fastq
+
+    main:
+        
+        SAMTOOLS_SORT_FILT(mapped_reads, params.outdir) // sort by name
+
+        BAM2BED_NOINDEX(SAMTOOLS_SORT_FILT.out.bam, params.outdir, bam2bed_args)
+        FILTER_READS(BAM2BED_NOINDEX.out.reads, params.outdir)
+        READS_QC_EXTRACT_BC(FILTER_READS.out.reads, params.outdir)
+        SORT_DEDUP(READS_QC_EXTRACT_BC.out.reads, params.outdir)
+
+        SUMMARIZE_MAPPED_READ_CELLS(trimmed_fastq, mapped_reads, params.outdir)
+
+    emit:
+        //sorted = SAMTOOLS_SORT_FILT.out.bam
+        //sorted = BAM2BED_NOINDEX.out.reads
+        sorted = SORT_DEDUP.out.reads
+}
+
+

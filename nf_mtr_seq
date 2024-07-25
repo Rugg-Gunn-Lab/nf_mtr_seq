@@ -1,0 +1,339 @@
+#!/usr/bin/env nextflow
+nextflow.enable.dsl=2
+
+/* 
+
+TODO:
+
+sort out summarize mapped... in RNA
+
+DNA
+module load nextflow
+nextflow run /bi/group/bioinf/Laura_B//nf_yang_wang/yang_dna.nf --genome GRCh38 --condition bulk //bi/group/bioinf/Laura_B//nf_yang_wang/data/test.HIST_Bulk_D0*fq.gz
+nextflow run /bi/group/bioinf/Laura_B//nf_yang_wang/yang_dna.nf --genome GRCh38 --condition paired //bi/group/bioinf/Laura_B//nf_yang_wang/data/test.HIST_D_S1_*.fq.gz
+
+nextflow run /bi/group/bioinf/Laura_B//nf_yang_wang/yang_dna.nf --genome GRCh38 --condition stringent //bi/group/bioinf/Laura_B//nf_yang_wang/data/test.HIST_D_S1_*.fq.gz
+nextflow run /bi/group/bioinf/Laura_B//nf_yang_wang/yang_dna.nf --genome GRCh38 --condition relax //bi/group/bioinf/Laura_B//nf_yang_wang/data/test.HIST_D_S1_*.fq.gz
+
+DNA
+nextflow run /bi/group/bioinf/Laura_B//nf_yang_wang/nf_mtr_seq --type dna --genome GRCh38 --condition bulk //bi/group/bioinf/Laura_B//nf_yang_wang/data/test.HIST_Bulk_D0*fq.gz
+
+RNA
+nextflow run /bi/group/bioinf/Laura_B//nf_yang_wang/nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_yang_wang/data/test.SLX23062_AGTTCC_GTAAGGAG_HIST_R_S1_S1_L001_R*.fq.gz
+
+nextflow run /bi/group/bioinf/Laura_B//nf_yang_wang/nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_yang_wang/data/full_size_RNA_L001_R*.fq.gz
+
+nextflow run /bi/group/bioinf/Laura_B//nf_yang_wang/nf_mtr_seq -bg -resume --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_yang_wang/data/full_size_RNA_L001_R*.fq.gz
+
+nextflow run /bi/group/bioinf/Laura_B//nf_yang_wang/nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_yang_wang/data/100k_RNA_L001_R*.fq.gz
+
+nextflow run /bi/group/bioinf/Laura_B//nf_yang_wang/nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_yang_wang/data/1M_RNA_L001_R*.fq.gz
+*/
+
+params.outdir = "."
+params.genome = ""
+params.type = "dna"
+params.condition = "stringent" // stringent, relax, bulk or paired 
+params.verbose = true
+params.list_genomes = false;
+params.help = false
+params.no_output = false
+
+// The number of bases to add to R2 length
+bulk_extension = 99
+//params.pileups_threshold = 10  // This is now defined in dna_stringent_relax
+
+// Show help message and exit
+if (params.help){
+    helpMessage()
+    exit 0
+}
+
+include { listGenomes }       from '/bi/apps/nextflow/nextflow_pipelines/nf_modules/genomes.mod.nf'
+include { getGenome }         from '/bi/apps/nextflow/nextflow_pipelines/nf_modules/genomes.mod.nf'
+include { get_BC_genome }         from './modules/yang_processes.mod.nf'
+
+if (params.list_genomes){
+    println ("[WORKFLOW] List genomes selected")
+    listGenomes()  // this lists all available genomes, and exits
+}
+
+if (params.condition != "relax" & params.condition != "stringent" & params.condition != "bulk"  & params.condition != "paired"){
+    println ("\ncondition needs to be one of 'relax, stringent, bulk or paired'.")
+    println("Supplied value was " + params.condition + "\n")
+    exit 1
+}
+
+if (params.type != "dna" & params.type != "rna"){
+    println ("\ndata_type needs to be 'dna or rna'.")
+    println("Supplied value was " + params.type + "\n")
+    exit 1
+}
+
+barcode_genome = get_BC_genome(params.type)
+genome = getGenome(params.genome)
+star_index = genome["star"]
+gtf_file   = genome["cellranger_gtf"]
+
+include { getFileBaseNames }                    from './modules/file_basenames.mod.nf'
+include { REACHTOOLS_COMBINE2 }                 from './modules/reachtools.mod.nf'
+include { REACHTOOLS_COMBINE3 }                 from './modules/reachtools.mod.nf'
+include { REACHTOOLS_COMBINE_BULK }             from './modules/reachtools.mod.nf'
+include { TRIM_GALORE }                         from '/bi/apps/nextflow/nextflow_pipelines/nf_modules/trim_galore.mod.nf'
+include { TRIM_GALORE as TRIM_GALORE2 }         from '/bi/apps/nextflow/nextflow_pipelines/nf_modules/trim_galore.mod.nf'
+include { BOWTIE_BC }                           from './modules/yang_processes.mod.nf'
+include { BOWTIE2 }                             from '/bi/apps/nextflow/nextflow_pipelines/nf_modules/bowtie2.mod.nf'   params(genome: genome)
+include { SAM_TO_FASTQ }                        from './modules/yang_processes.mod.nf'
+include { SAM_TO_COV_FASTQ_PAIRED }             from './modules/yang_processes.mod.nf'
+include { SUMMARIZE_MAPPED_READ_CELLS }         from './modules/yang_processes.mod.nf'
+include { SAMTOOLS_FILT }                       from './modules/samtools.mod.nf'
+include { SAMTOOLS_SORT }                       from './modules/samtools.mod.nf'
+include { GET_R2_LENGTH }                       from './modules/yang_processes.mod.nf'
+include { DNA_PAIRED_BULK }                     from './subworkflows/dna_paired_bulk'               params(outdir: params.outdir, verbose: params.verbose)
+include { DNA_STRINGENT_RELAX }                 from './subworkflows/dna_stringent_relax'           params(outdir: params.outdir, verbose: params.verbose)
+include { RNA_MAP_PROCESS }                     from './subworkflows/rna_map_process'               params(outdir: params.outdir, verbose: params.verbose, star_index: star_index, condition: params.condition, gtf_file: gtf_file)
+
+trim_galore_args_paired = ''
+trim_galore_args1 = '--cores 4 --quality 30 --stringency 5 --length 28'
+bowtie_bc_args_stringent = '--norc -m 1 -v 0 -p 30'
+bowtie_bc_args_relax = '--norc -a --best --strata -v 1 -p 30'
+
+//bowtie2_args_paired_bulk = '--end-to-end'
+//bowtie2_args = ''
+samtools_sort_args  = ''
+
+if (params.condition == "bulk"  | params.condition == "paired"){
+    bowtie2_args = '--end-to-end'
+} else {
+    bowtie2_args = ''
+}
+
+
+log.info """\
+
+    =================================
+    B A R C O D E    P I P E L I N E
+    =================================
+    outdir              : ${params.outdir}
+    test                : ${params.test}
+    trim_galore_args    : ${trim_galore_args1}
+    genome              : ${genome}
+    barcode genome      : ${barcode_genome}
+    ---------------------------------
+
+    """
+    .stripIndent()
+
+// glob the files and get them into a sample_id, path tuple
+file_ch =  Channel.fromFilePairs( getFileBaseNames(args), size:-1)
+file_ch.view()
+
+workflow { 
+
+    main:
+
+        // This is from the gz.sh script which is for pre_dna/pre_rna, for mapping barcodes
+        if(params.condition == "stringent") {
+            REACHTOOLS_COMBINE2 (file_ch, params.outdir)
+            TRIM_GALORE (REACHTOOLS_COMBINE2.out.comb, params.outdir, trim_galore_args1, params.verbose)
+            BOWTIE_BC (TRIM_GALORE.out.reads, params.outdir, bowtie_bc_args_stringent, barcode_genome)
+        } else if (params.condition == "relax") {
+            REACHTOOLS_COMBINE2 (file_ch, params.outdir)
+            BOWTIE_BC (REACHTOOLS_COMBINE2.out.comb, params.outdir, bowtie_bc_args_relax, barcode_genome)
+        } else if(params.condition == "paired") {
+            REACHTOOLS_COMBINE3 (file_ch, params.outdir)
+            TRIM_GALORE (REACHTOOLS_COMBINE3.out.comb, params.outdir, trim_galore_args1, params.verbose)
+            BOWTIE_BC (TRIM_GALORE.out.reads, params.outdir, bowtie_bc_args_stringent, barcode_genome)
+        } else if (params.condition == "bulk") {
+            REACHTOOLS_COMBINE_BULK (file_ch, params.outdir)
+            BOWTIE_BC (REACHTOOLS_COMBINE_BULK.out.comb, params.outdir, bowtie_bc_args_stringent, barcode_genome)
+        } else {
+            println ("need a valid condition: " + params.condition)
+        }
+        
+        if(params.condition == "paired" | params.condition == "bulk") {
+
+            GET_R2_LENGTH(file_ch)
+            R2_length = GET_R2_LENGTH.out.read2_length.toInteger()
+            if(params.condition == "bulk") {
+                R2_length = R2_length.map { it + bulk_extension }
+            }
+
+            SAM_TO_COV_FASTQ_PAIRED(BOWTIE_BC.out.sam, R2_length, params.outdir)            
+            TRIM_GALORE2(SAM_TO_COV_FASTQ_PAIRED.out.reads, params.outdir, trim_galore_args_paired, params.verbose)            
+        } else {
+            SAM_TO_FASTQ(BOWTIE_BC.out.sam, params.outdir)
+            TRIM_GALORE2(SAM_TO_FASTQ.out.reads, params.outdir, trim_galore_args_paired, params.verbose)
+        }
+
+        if (params.type == "dna") {
+
+            BOWTIE2(TRIM_GALORE2.out.reads, params.outdir, bowtie2_args, params.verbose) 
+
+            if(params.condition == "stringent") {
+                SAMTOOLS_FILT(BOWTIE2.out.bam, params.outdir)
+                samtools_out = SAMTOOLS_FILT.out.bam 
+            } else {
+                SAMTOOLS_SORT(BOWTIE2.out.bam, params.outdir, samtools_sort_args, params.verbose)
+                samtools_out = SAMTOOLS_SORT.out.bam
+            }
+
+            if (params.condition == "paired" || params.condition == "bulk" ) {
+
+                DNA_PAIRED_BULK(samtools_out, TRIM_GALORE2.out.reads)
+
+            }  else {
+
+                DNA_STRINGENT_RELAX(samtools_out, TRIM_GALORE2.out.reads)
+
+            } 
+        } else if (params.type == "rna") {
+
+            RNA_MAP_PROCESS(TRIM_GALORE2.out.reads)
+
+        } else {
+            println("Shoudln't have got to here, something's gone wrong with the data_type " + params.type + "\n")
+            exit 1
+        }
+
+}
+
+workflow.onComplete {
+
+    def msg = """\
+        Pipeline execution summary
+        ---------------------------
+        Jobname     : ${workflow.runName}
+        Completed at: ${workflow.complete}
+        Duration    : ${workflow.duration}
+        Success     : ${workflow.success}
+        workDir     : ${workflow.workDir}
+        exit status : ${workflow.exitStatus}
+        """
+    .stripIndent()
+
+   // sendMail(to: "${workflow.userName}@babraham.ac.uk", subject: 'Minimal pipeline execution report', body: msg)
+}
+
+
+def helpMessage() {
+ 
+    log.info"""
+    >>
+
+    SYNOPSIS:
+
+    Yang has a set of scripts that he uses to process sequencing data with multiple barcodes. 
+    We are putting this into a NextFlow pipeline to try and streamline the usage of it. 
+    This is for the RNA pipeline - needs updating for DNA
+
+    Input must be *fq.gz files NOT fastq.gz files
+    
+    Here is a graphical representation of the workflow:
+
+    --- REACHTOOLS_COMBINE
+        |
+        --- TRIM_GALORE (if condition == "stringent" or "paired" ) else straight to BOWTIE_BC
+            |
+            --- BOWTIE_BC - Map barcodes with bowtie
+                |
+                --- SAM_TO_FASTQ or SAM_TO_COV_FASTQ_PAIRED to convert mapped barcodes back to fastq
+                    |
+                    --- TRIM_GALORE
+                        |
+                            subworkflow
+                        --- { RNA }
+                            | 
+                            --- STAR
+                                | 
+                                --- RNA_MAP_PROCESS (sub workflow) 
+                                --- REACHTOOLS_RMDUP2
+                                    |
+                                    --- SAMTOOLS_INDEX
+                                    --- ADD_BAM_CB_TAG
+                                        |
+                                        --- BAM2COUNT_MATRIX/BAM2COUNT_MATRIX_SPARSE
+                                    --- BAM2BED
+                                        |
+                                        --- READS_QC_EXTRACT_BC
+                                    --- SUMMARIZE_MAPPED_READ_CELLS     
+                        --- { DNA }
+                            |
+                            --- BOWTIE2
+                                | 
+                                --- SAMTOOLS SORT (+ filter if condition == "stringent")
+                                    |
+                                        subworkflows
+                                    --- { DNA_PAIRED_BULK } (if condition == "paired" or "bulk" )
+                                        |
+                                        --- SUMMARIZE_MAPPED_READ_CELLS
+                                        --- REACHTOOLS_RMDUP2
+                                            |
+                                            --- SAMTOOLS_SORT_FILT
+                                                |
+                                                --- BAM2BED
+                                                    |
+                                                    --- FILTER_READS
+                                                        |
+                                                        --- READS_QC_EXTRACT_BC
+                                                            |
+                                                            --- SORT_DEDUP
+
+                                    --- DNA_STRINGENT_RELAX (if condition == "stringent" or "relax")
+                                        |
+                                        --- SUMMARIZE_MAPPED_READ_CELLS
+                                        --- REACHTOOLS_RMDUP2
+                                            |
+                                            --- SAMTOOLS INDEX
+                                                |
+                                                --- BAM2BED
+                                                    |
+                                                    --- READS_QC_EXTRACT_BC
+                                                        |
+                                                        --- COUNT_PILEUPS
+                                                            |
+                                                            --- REMOVE_PILEUPS
+                                                                |
+                                                                --- SAMTOOLS_INDEX2
+                                                                    |
+                                                                    --- BAM2BED2
+                                                                        |
+                                                                        --- READS_QC_EXTRACT_BC2
+
+
+
+
+    By default all these steps are submitted as jobs to the Babraham stone compute cluster.
+    ==============================================================================================================
+
+            
+    USAGE:
+    
+    This isn't in the main nextflow repository while in development - so is currently run as so:
+
+    nextflow run /bi/group/bioinf/Laura_B/nf_yang_wang/yang1.nf --genome <genomeID>  <input files>
+
+    e.g.
+    nextflow run /bi/group/bioinf/Laura_B/nf_yang_wang/yang1.nf --genome GRCh38 ../data/test.HIST_Bulk_D0*fq.gz
+
+    
+    Mandatory arguments:
+    ====================
+
+      <input files>                   List of input files, e.g. *fq.gz'. Files are automatically processed as
+                                      single-end (SE) or paired end (PE) files (if file pairs share the same base-name, and differ only
+                                      by a read number, e.g. 'base_name_R1.fastq.gz' and 'base_name_R2.fastq.gz' (or R3, R4). 
+
+      --genome [str]                  Genome build ID to be used for the alignment, e.g. GRCh38 (latest human genome) or GRCm38
+                                      (latest mouse genome build). To list all available genomes, see '--list_genomes' below.
+
+
+    Optional arguments:
+    ====================
+
+      --condition [str]                 stringent, relaxed, bulk or paired [Default: relaxed]
+                                        Can we have more than one of these conditions ?? 
+    <<
+    """.stripIndent()
+
+}

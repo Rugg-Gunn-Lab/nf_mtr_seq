@@ -1,0 +1,60 @@
+#!/usr/bin/env nextflow
+nextflow.enable.dsl=2
+
+params.pileups_threshold = 10
+
+
+include { STAR }                                from '../modules/yang_processes.mod.nf'
+include { REACHTOOLS_RMDUP2 }                   from '../modules/reachtools.mod.nf'
+include { SAMTOOLS_SORT }                       from '../modules/samtools.mod.nf'
+include { SAMTOOLS_INDEX }                      from '../modules/samtools.mod.nf'
+include { ADD_BAM_CB_TAG }                      from '../modules/yang_processes.mod.nf'
+include { BAM2COUNT_MATRIX }                    from '../modules/yang_processes.mod.nf'
+include { BAM2COUNT_MATRIX_SPARSE }             from '../modules/yang_processes.mod.nf'
+include { BAM2BED }                             from '../modules/yang_processes.mod.nf'
+include { READS_QC_EXTRACT_BC }                 from '../modules/yang_processes.mod.nf'
+include { SUMMARIZE_MAPPED_READ_CELLS }         from '../modules/yang_processes.mod.nf'
+
+samtools_index_args = "--threads 16"
+samtools_sort_args = ""
+bam2bed_args = ''
+
+
+workflow RNA_MAP_PROCESS {
+
+    take:
+        trimmed_reads // this is a tuple of val(name), path(mapped_reads)
+        //fastq_reads
+        
+
+    main:
+            STAR(trimmed_reads, params.outdir, params.star_index) // output is sorted bam file
+            REACHTOOLS_RMDUP2(STAR.out.bam, params.outdir)
+            // // I thought that RMDUP2 sorted the bam file so we only need to index it, but had an error come up saying it wasn't sorted - maybe it sorts it by name or something else
+            SAMTOOLS_SORT(REACHTOOLS_RMDUP2.out.reads, params.outdir, samtools_sort_args, params.verbose)
+            SAMTOOLS_INDEX(SAMTOOLS_SORT.out.bam, params.outdir, samtools_index_args, params.verbose)
+            
+            ADD_BAM_CB_TAG(SAMTOOLS_SORT.out.bam, SAMTOOLS_INDEX.out.bai, params.outdir)
+            
+            //ADD_BAM_CB_TAG(REACHTOOLS_RMDUP2.out.reads, SAMTOOLS_INDEX.out.bai, params.outdir)
+            // // if bulk, matrix type is 'matrix', else is 'sparse'
+            if (params.condition == "bulk") {
+                BAM2COUNT_MATRIX(ADD_BAM_CB_TAG.out.reads, params.gtf_file, params.outdir)
+            } else {
+                BAM2COUNT_MATRIX_SPARSE(ADD_BAM_CB_TAG.out.reads, params.gtf_file, params.outdir)
+            }
+            BAM2BED(REACHTOOLS_RMDUP2.out.reads, SAMTOOLS_INDEX.out.bai, params.outdir, bam2bed_args)
+            READS_QC_EXTRACT_BC(BAM2BED.out.reads, params.outdir) 
+            
+            //Not entirely sure which inputs we want here
+           // This needs sorting - we need mapped reads and trimmed fastqs, not deduplicated reads
+           SUMMARIZE_MAPPED_READ_CELLS(trimmed_reads, STAR.out.bam, params.outdir)
+           //SUMMARIZE_MAPPED_READ_CELLS(trimmed_reads, REACHTOOLS_RMDUP2.out.reads, params.outdir)
+
+    emit:
+        sorted = STAR.out.bam
+        //sorted = BAM2BED_NOINDEX.out.reads
+       // sorted = SORT_DEDUP.out.reads
+}
+
+
