@@ -1,7 +1,6 @@
 .vscode/
-cell_id/
-data/test.SLX23062_AGTTCC_GTAAGGAG_HIST_R_S1_S1_L001_R1.fq.gz
-data/test.SLX23062_AGTTCC_GTAAGGAG_HIST_R_S1_S1_L001_R2.fq.gz
+data/full*
+data/1*
 nf_chosen_outputs/
 pipeline.code-workspace
 .nextflow/
