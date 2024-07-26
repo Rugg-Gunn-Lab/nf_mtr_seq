@@ -19,13 +19,10 @@ samtools_index_args = "--threads 16"
 samtools_sort_args = ""
 bam2bed_args = ''
 
-
 workflow RNA_MAP_PROCESS {
 
     take:
-        trimmed_reads // this is a tuple of val(name), path(mapped_reads)
-        //fastq_reads
-        
+        trimmed_reads // this is a tuple of val(name), path(mapped_reads)       
 
     main:
             STAR(trimmed_reads, params.outdir, params.star_index) // output is sorted bam file
@@ -36,8 +33,6 @@ workflow RNA_MAP_PROCESS {
             
             ADD_BAM_CB_TAG(SAMTOOLS_SORT.out.bam, SAMTOOLS_INDEX.out.bai, params.outdir)
             
-            //ADD_BAM_CB_TAG(REACHTOOLS_RMDUP2.out.reads, SAMTOOLS_INDEX.out.bai, params.outdir)
-            // // if bulk, matrix type is 'matrix', else is 'sparse'
             if (params.condition == "bulk") {
                 BAM2COUNT_MATRIX(ADD_BAM_CB_TAG.out.reads, params.gtf_file, params.outdir)
             } else {
@@ -46,10 +41,8 @@ workflow RNA_MAP_PROCESS {
             BAM2BED(REACHTOOLS_RMDUP2.out.reads, SAMTOOLS_INDEX.out.bai, params.outdir, bam2bed_args)
             READS_QC_EXTRACT_BC(BAM2BED.out.reads, params.outdir) 
             
-            //Not entirely sure which inputs we want here
-           // This needs sorting - we need mapped reads and trimmed fastqs, not deduplicated reads
+           // As input we need mapped reads and trimmed fastqs, not deduplicated reads
            SUMMARIZE_MAPPED_READ_CELLS(trimmed_reads, STAR.out.bam, params.outdir)
-           //SUMMARIZE_MAPPED_READ_CELLS(trimmed_reads, REACHTOOLS_RMDUP2.out.reads, params.outdir)
 
     emit:
         sorted = STAR.out.bam

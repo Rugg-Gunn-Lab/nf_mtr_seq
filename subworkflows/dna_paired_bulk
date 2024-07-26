@@ -1,38 +1,3 @@
-/*
-subworkflow  to cover this:
-lines 259-287 in Yang_run_pipeline.sh
-
-if [[ $conditions == "paired" || $conditions == "bulk" ]]
-        then
-        # sort by name/readid
-        samtools sort -n ${sample}_${genomes}_clean.bam -o ${sample}_${genomes}_clean2.bam      
-        # only keep prop paired mapping, paired reads mapped correct orientation (like R1 forward-R3 reverse, or R1 reverse-R2 forward); MAPQ >10
-        # still add rmdup for unify file names only
-        samtools view -q 10 -f 0x2 ${sample}_${genomes}_clean2.bam -o ${sample}_${genomes}_sorted.bam
-
-        bedtools bamtobed -i ${sample}_${genomes}_sorted.bam -bedpe >${sample}_${genomes}_sorted.bam.bed
-        ## Keep the read pairs that are on the same chromosome  #and fragment length less than 1000bp.
-        awk '$1==$4 {print $0}' ${sample}_${genomes}_sorted.bam.bed > ${sample}_${genomes}_sorted.bam.clean.bed 
-        # $1==$4 &&$6-$2 < 1000 
-        rm ${sample}_${genomes}_sorted.bam.bed
-
-        ## Only extract the fragment related columns and cellids, umi
-        cut -f 1,2,6,7 ${sample}_${genomes}_sorted.bam.clean.bed > ${sample}_${genomes}.bam.bed
-	sort -k1,1 -k2,2n -k3,3n ${sample}_${genomes}.bam.bed > ${sample}_${genomes}_sorted.bam.bed
-#       remove temp files
-#       rm ${sample}_${genomes}_sorted.bam.clean.bed 
-#       rm ${sample}_${genomes}_clean2.bam
-
-        pigz -p 30  ${sample}_${genomes}_sorted.bam.bed
-
-        perl /bi/home/wangy/projects/ctr_seq/scripts/reads.qc.extract.bc.pl     ${sample}_${genomes}_sorted.bam.bed.gz    $sampledir/$lanedir/$conditions
-        # unique chr, start, end, cellid, umi
-        cd  ${path}/08.matrix/${sampledir}/${lanedir}/$conditions
-	zcat ${sample}_${genomes}_sorted.reads.split.bc.tsv.gz |sort |uniq > ${sample}_${genomes}_sorted_rmdup.reads.split.bc.uniq.tsv
-        
-	pigz -p 30 gzip ${sample}_${genomes}_sorted_rmdup.reads.split.bc.uniq.tsv
-
-*/
 
 // to check how a bam file is sorted: samtools view -H *sorted.bam | grep SO
 // 
