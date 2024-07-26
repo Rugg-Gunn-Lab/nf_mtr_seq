@@ -1,6 +1,7 @@
 .vscode/
 data/full*
 data/1*
+data/SLX23062*
 nf_chosen_outputs/
 pipeline.code-workspace
 .nextflow/
