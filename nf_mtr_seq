@@ -5,29 +5,30 @@ nextflow.enable.dsl=2
 
 TODO:
 
-sort out summarize mapped... in RNA
+
 
 DNA
 module load nextflow
-nextflow run /bi/group/bioinf/Laura_B//nf_yang_wang/yang_dna.nf --genome GRCh38 --condition bulk //bi/group/bioinf/Laura_B//nf_yang_wang/data/test.HIST_Bulk_D0*fq.gz
-nextflow run /bi/group/bioinf/Laura_B//nf_yang_wang/yang_dna.nf --genome GRCh38 --condition paired //bi/group/bioinf/Laura_B//nf_yang_wang/data/test.HIST_D_S1_*.fq.gz
+nextflow run /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition bulk //bi/group/bioinf/Laura_B//nf_mtr_seq/data/test.HIST_Bulk_D0*fq.gz
+nextflow run /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition paired //bi/group/bioinf/Laura_B//nf_mtr_seq/data/test.HIST_D_S1_*.fq.gz
+nextflow run /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition stringent //bi/group/bioinf/Laura_B//nf_mtr_seq/data/test.HIST_D_S1_*.fq.gz
+nextflow run /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition relax //bi/group/bioinf/Laura_B//nf_mtr_seq/datatest.HIST_D_S1_*.fq.gz
 
-nextflow run /bi/group/bioinf/Laura_B//nf_yang_wang/yang_dna.nf --genome GRCh38 --condition stringent //bi/group/bioinf/Laura_B//nf_yang_wang/data/test.HIST_D_S1_*.fq.gz
-nextflow run /bi/group/bioinf/Laura_B//nf_yang_wang/yang_dna.nf --genome GRCh38 --condition relax //bi/group/bioinf/Laura_B//nf_yang_wang/data/test.HIST_D_S1_*.fq.gz
-
-DNA
-nextflow run /bi/group/bioinf/Laura_B//nf_yang_wang/nf_mtr_seq --type dna --genome GRCh38 --condition bulk //bi/group/bioinf/Laura_B//nf_yang_wang/data/test.HIST_Bulk_D0*fq.gz
 
 RNA
-nextflow run /bi/group/bioinf/Laura_B//nf_yang_wang/nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_yang_wang/data/test.SLX23062_AGTTCC_GTAAGGAG_HIST_R_S1_S1_L001_R*.fq.gz
+nextflow run /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_mtr_seq/data/test.SLX23062_AGTTCC_GTAAGGAG_HIST_R_S1_S1_L001_R*.fq.gz
 
-nextflow run /bi/group/bioinf/Laura_B//nf_yang_wang/nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_yang_wang/data/full_size_RNA_L001_R*.fq.gz
 
-nextflow run /bi/group/bioinf/Laura_B//nf_yang_wang/nf_mtr_seq -bg -resume --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_yang_wang/data/full_size_RNA_L001_R*.fq.gz
 
-nextflow run /bi/group/bioinf/Laura_B//nf_yang_wang/nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_yang_wang/data/100k_RNA_L001_R*.fq.gz
 
-nextflow run /bi/group/bioinf/Laura_B//nf_yang_wang/nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_yang_wang/data/1M_RNA_L001_R*.fq.gz
+
+nextflow run /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_mtr_seq/data/full_size_RNA_L001_R*.fq.gz
+
+nextflow run /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg -resume --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_mtr_seq/data/full_size_RNA_L001_R*.fq.gz
+
+nextflow run /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_mtr_seq/data/100k_RNA_L001_R*.fq.gz
+
+nextflow run /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_mtr_seq/data/1M_RNA_L001_R*.fq.gz
 */
 
 params.outdir = "."
@@ -51,7 +52,7 @@ if (params.help){
 
 include { listGenomes }       from '/bi/apps/nextflow/nextflow_pipelines/nf_modules/genomes.mod.nf'
 include { getGenome }         from '/bi/apps/nextflow/nextflow_pipelines/nf_modules/genomes.mod.nf'
-include { get_BC_genome }         from './modules/yang_processes.mod.nf'
+include { get_BC_genome }     from './modules/yang_processes.mod.nf'
 
 if (params.list_genomes){
     println ("[WORKFLOW] List genomes selected")
@@ -61,13 +62,13 @@ if (params.list_genomes){
 if (params.condition != "relax" & params.condition != "stringent" & params.condition != "bulk"  & params.condition != "paired"){
     println ("\ncondition needs to be one of 'relax, stringent, bulk or paired'.")
     println("Supplied value was " + params.condition + "\n")
-    exit 1
+    System.exit(1)
 }
 
 if (params.type != "dna" & params.type != "rna"){
-    println ("\ndata_type needs to be 'dna or rna'.")
+    println ("\ndata_type needs to be 'dna' or 'rna'.")
     println("Supplied value was " + params.type + "\n")
-    exit 1
+    System.exit(1)
 }
 
 barcode_genome = get_BC_genome(params.type)
@@ -97,9 +98,6 @@ trim_galore_args_paired = ''
 trim_galore_args1 = '--cores 4 --quality 30 --stringency 5 --length 28'
 bowtie_bc_args_stringent = '--norc -m 1 -v 0 -p 30'
 bowtie_bc_args_relax = '--norc -a --best --strata -v 1 -p 30'
-
-//bowtie2_args_paired_bulk = '--end-to-end'
-//bowtie2_args = ''
 samtools_sort_args  = ''
 
 if (params.condition == "bulk"  | params.condition == "paired"){
@@ -108,6 +106,14 @@ if (params.condition == "bulk"  | params.condition == "paired"){
     bowtie2_args = ''
 }
 
+file_basenames = getFileBaseNames(args)
+no_of_file_pairs = file_basenames.size()
+
+if (no_of_file_pairs == 0){
+    println("\n No input files found, files must be in the format (R[1234]).fq.gz \n")
+    println("Supplied files were " + args + "\n")
+    System.exit(1)
+}
 
 log.info """\
 
@@ -115,24 +121,23 @@ log.info """\
     B A R C O D E    P I P E L I N E
     =================================
     outdir              : ${params.outdir}
-    test                : ${params.test}
+    data type           : ${params.type}
+    condition           : ${params.condition}
     trim_galore_args    : ${trim_galore_args1}
-    genome              : ${genome}
-    barcode genome      : ${barcode_genome}
+    genome              : ${params.genome}
+    barcode genome      : ${barcode_genome}  
+    no of file pairs    : ${no_of_file_pairs}
     ---------------------------------
 
     """
     .stripIndent()
 
-// glob the files and get them into a sample_id, path tuple
 file_ch =  Channel.fromFilePairs( getFileBaseNames(args), size:-1)
-file_ch.view()
 
 workflow { 
 
     main:
 
-        // This is from the gz.sh script which is for pre_dna/pre_rna, for mapping barcodes
         if(params.condition == "stringent") {
             REACHTOOLS_COMBINE2 (file_ch, params.outdir)
             TRIM_GALORE (REACHTOOLS_COMBINE2.out.comb, params.outdir, trim_galore_args1, params.verbose)
@@ -223,9 +228,7 @@ def helpMessage() {
 
     SYNOPSIS:
 
-    Yang has a set of scripts that he uses to process sequencing data with multiple barcodes. 
-    We are putting this into a NextFlow pipeline to try and streamline the usage of it. 
-    This is for the RNA pipeline - needs updating for DNA
+    Yang developed a set of scripts that he uses to process sequencing data with multiple barcodes. 
 
     Input must be *fq.gz files NOT fastq.gz files
     
@@ -309,30 +312,30 @@ def helpMessage() {
             
     USAGE:
     
-    This isn't in the main nextflow repository while in development - so is currently run as so:
-
-    nextflow run /bi/group/bioinf/Laura_B/nf_yang_wang/yang1.nf --genome <genomeID>  <input files>
+    nf_mtr_seq --genome <genomeID> --type [dna|rna] --condition [stringent|relax|paired|bulk] <input files>
 
     e.g.
-    nextflow run /bi/group/bioinf/Laura_B/nf_yang_wang/yang1.nf --genome GRCh38 ../data/test.HIST_Bulk_D0*fq.gz
+    nf_mtr_seq --genome GRCh38 ../data/test.HIST_Bulk_D0*fq.gz
 
     
     Mandatory arguments:
     ====================
 
-      <input files>                   List of input files, e.g. *fq.gz'. Files are automatically processed as
+      <input files>                   List of input files, e.g. *fq.gz'. Must be .fq.gz not .fastq.gz
+                                      Files are automatically processed as
                                       single-end (SE) or paired end (PE) files (if file pairs share the same base-name, and differ only
-                                      by a read number, e.g. 'base_name_R1.fastq.gz' and 'base_name_R2.fastq.gz' (or R3, R4). 
+                                      by a read number, e.g. 'base_name_R1.fq.gz' and 'base_name_R2.fq.gz' (or R3, R4). 
 
-      --genome [str]                  Genome build ID to be used for the alignment, e.g. GRCh38 (latest human genome) or GRCm38
+      --genome [str]                  Genome build ID to be used for the alignment, e.g. GRCh38 (latest human genome) or GRCm39
                                       (latest mouse genome build). To list all available genomes, see '--list_genomes' below.
 
 
     Optional arguments:
     ====================
 
-      --condition [str]                 stringent, relaxed, bulk or paired [Default: relaxed]
-                                        Can we have more than one of these conditions ?? 
+      --condition [str]                 stringent, relaxed, bulk or paired [Default: stringent]
+                                        For RNA, recommended option is stringent.
+                                        
     <<
     """.stripIndent()
 
