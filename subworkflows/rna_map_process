@@ -4,7 +4,7 @@ nextflow.enable.dsl=2
 params.pileups_threshold = 10
 
 
-include { STAR }                                from '../modules/yang_processes.mod.nf'
+include { STAR }                                from '../modules/map.mod.nf'
 include { REACHTOOLS_RMDUP2 }                   from '../modules/reachtools.mod.nf'
 include { SAMTOOLS_SORT }                       from '../modules/samtools.mod.nf'
 include { SAMTOOLS_INDEX }                      from '../modules/samtools.mod.nf'

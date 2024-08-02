@@ -3,11 +3,10 @@
 // 
 // This will just take a bam file as input, not a tuple with the name
 
-//include { SAMTOOLS_SORT }              from '/bi/apps/nextflow/nextflow_pipelines/nf_modules/samtools.mod.nf'
-include { SAMTOOLS_INDEX }               from '/bi/apps/nextflow/nextflow_pipelines/nf_modules/samtools.mod.nf'
+//include { SAMTOOLS_INDEX }               from '/bi/apps/nextflow/nextflow_pipelines/nf_modules/samtools.mod.nf'
 include { BAM2BED_NOINDEX }              from '../modules/yang_processes.mod.nf'
 include { READS_QC_EXTRACT_BC }          from '../modules/yang_processes.mod.nf'
-include { SUMMARIZE_MAPPED_READ_CELLS }         from '../modules/yang_processes.mod.nf'
+include { SUMMARIZE_MAPPED_READ_CELLS }  from '../modules/yang_processes.mod.nf'
 
 bam2bed_args = "-bedpe"
 samtools_index_args = ""
@@ -20,7 +19,6 @@ process SAMTOOLS_SORT_FILT {
 
 	input:
         tuple val(name), path (bam)
-		//path(bam)	
         val (outputdir)	
 
 	output:
@@ -97,8 +95,6 @@ workflow DNA_PAIRED_BULK {
         SUMMARIZE_MAPPED_READ_CELLS(trimmed_fastq, mapped_reads, params.outdir)
 
     emit:
-        //sorted = SAMTOOLS_SORT_FILT.out.bam
-        //sorted = BAM2BED_NOINDEX.out.reads
         sorted = SORT_DEDUP.out.reads
 }
 

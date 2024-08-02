@@ -41,40 +41,6 @@ process GET_R2_LENGTH {
         """
 }
 
-
-// for mapping to the barcode genome
-process BOWTIE_BC {
-
-    label 'bigMem' // 20GB
-    label 'multiCore'
-
-    input:
-        tuple val(name), path(reads)
-        val (outputdir)
-        val (bowtie_args)
-        val (barcode_genome)
-
-	output:
-	    tuple val(name), path ("*sam"),     emit: sam
-		path "*stats_barcodes.txt",         emit: stats 
-
-    // we only want the stats file written out as a hard link, not the sam file
-    publishDir = [
-        path: { "${outputdir}/nf_chosen_outputs" },
-        mode: "link", overwrite: true,
-        pattern: "*.txt"
-    ]
-
-    script:
-        cores = 8
-
-        """
-        module load bowtie
-        module load samtools
-        bowtie ${barcode_genome} --sam -p ${cores} ${bowtie_args} ${reads} 2>${name}_bowtie_stats_barcodes.txt ${name}_mapped_BC.sam
-        """
-}
-
 process SAM_TO_COV_FASTQ_PAIRED {
 
     input:
@@ -118,39 +84,7 @@ process SAM_TO_FASTQ {
         """
 }
 
-process STAR {
-
-    label 'hugeMem'
-    label 'multiCore'
-
-    input:
-        tuple val(name), path(reads)
-        val (outputdir)
-        val (star_index)
-
-	output:
-	    tuple val(name), path ("*bam"),  emit: bam
-		//path "*final.out",               emit: stats 
-        path "*.txt",               emit: stats 
-
-    publishDir "${outputdir}/nf_chosen_outputs",
-		mode: "link", overwrite: true
-
-    script:
-       
-        """
-        module load star
-        module load samtools
-        STAR --runThreadN 16 --genomeDir ${star_index} --readFilesIn ${reads} --readFilesCommand zcat --outStd SAM 2>${name}_star_out2.txt | samtools view -h -b -q 50 --threads 16 - | samtools sort --threads 16 -o ${name}_filt_sorted.bam
-        """
-}
-
-/** --outStd SAM directs the mapped reads to stdout so that we can pipe to samtools
-If we just want an output file from STAR instead of filtering and sorting we can use the command below:
-STAR --runThreadN 8 --genomeDir ${star_ref} --readFilesIn ${reads} --readFilesCommand zcat --outFileNamePrefix ${name}_ --outSAMtype BAM Unsorted
-
-STAR --runThreadN 30 --genomeDir ${star_index} --readFilesIn ${reads} --readFilesCommand zcat --outStd SAM | samtools view -h -b -q 50 --threads 16 - | samtools sort --threads 16 -o ${name}_filt_sorted.bam
-**/
+|| echo "no module found"
 
 process ADD_BAM_CB_TAG {
 
@@ -170,7 +104,7 @@ process ADD_BAM_CB_TAG {
     script:
 
         """ 
-        module load python
+        module load python 
         python3 ${script_path}/add.bam.CB.tag.py -i ${mapped_reads} -p 30  
         """
 } 
@@ -213,8 +147,6 @@ process BAM2COUNT_MATRIX_SPARSE {
         val (outputdir)
 
     output:
-        //tuple val(name), path ("*"), emit: reads
-        //tuple val(name), path ("${name}_splitpool_output/barcodes.tsv.gz"), emit: barcodes
         path("${name}_splitpool_output/matrix.mtx.gz"), emit: matrix
         path("${name}_splitpool_output/barcodes.tsv.gz"), emit: barcodes
         path("${name}_splitpool_output/features.tsv.gz"), emit: features
@@ -370,27 +302,3 @@ process REMOVE_PILEUPS {
         
         """
 }
-
-// process RM_DUP_MANUAL {
-
-//     label 'bigMem' // 20GB
-
-// 	input:
-// 		path(bam)	
-//         val (outputdir)	
-
-// 	output:
-//     	path "*bam", 	  emit: bam
-
-//     publishDir "${outputdir}/nf_chosen_outputs",
-// 		mode: "link", overwrite: true
-		
-// 		"""
-// 		module load samtools
-
-//         samtools sort $bam | samtools view -h -q 10 -f 0x2 -o ${bam}_sorted.bam
-
-//         rename .bam_sorted _sorted_rm_dup *
-// 		"""	
-// }
-

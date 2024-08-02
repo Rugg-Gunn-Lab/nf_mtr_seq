@@ -5,38 +5,44 @@ nextflow.enable.dsl=2
 
 TODO:
 
-
+move bowtie2, bowtie_bc, star, trim_galore to a module called mapping_trimming
+Add in module load xx || echo "no module found"
+Clean up genomes.d so there are only necessary paths
+List all d programs
 
 DNA
 module load nextflow
-nextflow run /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition bulk //bi/group/bioinf/Laura_B//nf_mtr_seq/data/test.HIST_Bulk_D0*fq.gz
-nextflow run /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition paired //bi/group/bioinf/Laura_B//nf_mtr_seq/data/test.HIST_D_S1_*.fq.gz
-nextflow run /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition stringent //bi/group/bioinf/Laura_B//nf_mtr_seq/data/test.HIST_D_S1_*.fq.gz
-nextflow run /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition relax //bi/group/bioinf/Laura_B//nf_mtr_seq/datatest.HIST_D_S1_*.fq.gz
+// small test data
+/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition bulk //bi/group/bioinf/Laura_B//nf_mtr_seq/data/test.HIST_Bulk_D0*fq.gz
+/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition paired //bi/group/bioinf/Laura_B//nf_mtr_seq/data/test.HIST_D_S1_*.fq.gz
+/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition stringent //bi/group/bioinf/Laura_B//nf_mtr_seq/data/test.HIST_D_S1_*.fq.gz
+/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition relax //bi/group/bioinf/Laura_B//nf_mtr_seq/datatest.HIST_D_S1_*.fq.gz
+
+// full size
+/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition bulk //bi/group/bioinf/Laura_B//nf_mtr_seq/data/full_size_DNA_Bulk*fq.gz
+/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition stringent //bi/group/bioinf/Laura_B//nf_mtr_seq/data/Merged_HIST_D_S1_L002_R*.fq.gz
+/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition paired //bi/group/bioinf/Laura_B//nf_mtr_seq/data/Merged_HIST_D_S1_L002_R*.fq.gz
+/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition relax //bi/group/bioinf/Laura_B//nf_mtr_seq/data/Merged_HIST_D_S1_L002_R*.fq.gz
 
 
 RNA
-nextflow run /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_mtr_seq/data/test.SLX23062_AGTTCC_GTAAGGAG_HIST_R_S1_S1_L001_R*.fq.gz
+// full size
+/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_mtr_seq/data/full_size_RNA_L001_R*.fq.gz
 
+// intermediate sizes
+/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_mtr_seq/data/100k_RNA_L001_R*.fq.gz
+/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_mtr_seq/data/1M_RNA_L001_R*.fq.gz
 
-
-
-
-nextflow run /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_mtr_seq/data/full_size_RNA_L001_R*.fq.gz
-
-nextflow run /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg -resume --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_mtr_seq/data/full_size_RNA_L001_R*.fq.gz
-
-nextflow run /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_mtr_seq/data/100k_RNA_L001_R*.fq.gz
-
-nextflow run /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_mtr_seq/data/1M_RNA_L001_R*.fq.gz
+// small
+/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent /bi/group/bioinf/Laura_B//nf_mtr_seq/data/test.SLX23062_AGTTCC_GTAAGGAG_HIST_R_S1_S1_L001_R*.fq.gz
 */
 
 params.outdir = "."
 params.genome = ""
 params.type = "dna"
 params.condition = "stringent" // stringent, relax, bulk or paired 
-params.verbose = true
-params.list_genomes = false;
+params.verbose = false
+params.list_genomes = false
 params.help = false
 params.no_output = false
 
@@ -80,10 +86,10 @@ include { getFileBaseNames }                    from './modules/file_basenames.m
 include { REACHTOOLS_COMBINE2 }                 from './modules/reachtools.mod.nf'
 include { REACHTOOLS_COMBINE3 }                 from './modules/reachtools.mod.nf'
 include { REACHTOOLS_COMBINE_BULK }             from './modules/reachtools.mod.nf'
-include { TRIM_GALORE }                         from '/bi/apps/nextflow/nextflow_pipelines/nf_modules/trim_galore.mod.nf'
-include { TRIM_GALORE as TRIM_GALORE2 }         from '/bi/apps/nextflow/nextflow_pipelines/nf_modules/trim_galore.mod.nf'
-include { BOWTIE_BC }                           from './modules/yang_processes.mod.nf'
-include { BOWTIE2 }                             from '/bi/apps/nextflow/nextflow_pipelines/nf_modules/bowtie2.mod.nf'   params(genome: genome)
+include { TRIM_GALORE }                         from './modules/trim_galore.mod.nf'
+include { TRIM_GALORE as TRIM_GALORE2 }         from './modules/trim_galore.mod.nf'
+include { BOWTIE_BC }                           from './modules/map.mod.nf'
+include { BOWTIE2 }                             from './modules/map.mod.nf'                         params(genome: genome)
 include { SAM_TO_FASTQ }                        from './modules/yang_processes.mod.nf'
 include { SAM_TO_COV_FASTQ_PAIRED }             from './modules/yang_processes.mod.nf'
 include { SUMMARIZE_MAPPED_READ_CELLS }         from './modules/yang_processes.mod.nf'
@@ -226,12 +232,72 @@ def helpMessage() {
     log.info"""
     >>
 
+    USAGE:
+    
+    nf_mtr_seq --genome <genomeID> --type [dna|rna] --condition [stringent|relax|paired|bulk] <input files>
+
+    e.g.
+    nf_mtr_seq -bg --genome GRCh38 --type dna --condition bulk data/test.HIST_Bulk_D0*fq.gz
+
     SYNOPSIS:
 
-    Yang developed a set of scripts that he uses to process sequencing data with multiple barcodes. 
+    Yang developed a set of scripts to process sequencing data with multiple barcodes. 
 
-    Input must be *fq.gz files NOT fastq.gz files
+
+    Mandatory arguments:
+    ====================
+
+      <input files>                   List of input files, e.g. *fq.gz'. Must be .fq.gz not .fastq.gz
+                                      Files are automatically processed as
+                                      single-end (SE) or paired end (PE) files (if file pairs share the same base-name, and differ only
+                                      by a read number, e.g. 'base_name_R1.fq.gz' and 'base_name_R2.fq.gz' (or R3, R4). 
+
+      --genome [str]                  Genome build ID to be used for the alignment, e.g. GRCh38 (latest human genome) or GRCm39
+                                      (latest mouse genome build). To list all available genomes, see '--list_genomes' below.
+
+
+    Tool-specific options:
+    ====================
+
+      --type [str]                    Type of data. Must be dna or rna [Default: dna]
+
+      --condition [str]               stringent, relaxed, bulk or paired [Default: stringent]
+                                      For RNA, recommended option is stringent.
+                                        
     
+     Other options:
+    ==============
+
+      --outdir [str]                  Path to the output directory. [Default: current working directory]
+
+      --list_genomes                  List all genome builds that are currently available to choose from. To see this list
+                                      of available genomes with more detailed information about paths and indexes, run
+                                      the command as '--list_genomes --verbose'
+
+      --verbose                       More verbose status messages. [Default: OFF]
+      --help                          Displays this help message and exits.
+
+    
+    Workflow options:
+    =================
+
+    Please note the single '-' hyphen for the following options!
+
+      -resume                         If a pipeline workflow has been interrupted or stopped (e.g. by accidentally closing a laptop),
+                                      this option will attempt to resume the workflow at the point it got interrupted by using
+                                      Nextflow's caching mechanism. This may save a lot of time.
+
+      -bg                             Sends the entire workflow into the background, thus disconnecting it from the terminal session.
+                                      This option launches a daemon process (which will keep running on the headnode) that watches over
+                                      your workflow, and submits new jobs to the SLURM queue as required. Use this option for big pipeline
+                                      jobs, or whenever you do not want to watch the status progress yourself. Upon completion, the
+                                      pipeline will send you an email with the job details. This option is HIGHLY RECOMMENDED!
+
+      -process.executor=local         Temporarily changes where the workflow is executed to the 'local' machine. See also Nextflow config
+                                      file for more details. [Default: slurm] 
+
+
+
     Here is a graphical representation of the workflow:
 
     --- REACHTOOLS_COMBINE
@@ -308,34 +374,8 @@ def helpMessage() {
 
     By default all these steps are submitted as jobs to the Babraham stone compute cluster.
     ==============================================================================================================
-
-            
-    USAGE:
+   
     
-    nf_mtr_seq --genome <genomeID> --type [dna|rna] --condition [stringent|relax|paired|bulk] <input files>
-
-    e.g.
-    nf_mtr_seq --genome GRCh38 ../data/test.HIST_Bulk_D0*fq.gz
-
-    
-    Mandatory arguments:
-    ====================
-
-      <input files>                   List of input files, e.g. *fq.gz'. Must be .fq.gz not .fastq.gz
-                                      Files are automatically processed as
-                                      single-end (SE) or paired end (PE) files (if file pairs share the same base-name, and differ only
-                                      by a read number, e.g. 'base_name_R1.fq.gz' and 'base_name_R2.fq.gz' (or R3, R4). 
-
-      --genome [str]                  Genome build ID to be used for the alignment, e.g. GRCh38 (latest human genome) or GRCm39
-                                      (latest mouse genome build). To list all available genomes, see '--list_genomes' below.
-
-
-    Optional arguments:
-    ====================
-
-      --condition [str]                 stringent, relaxed, bulk or paired [Default: stringent]
-                                        For RNA, recommended option is stringent.
-                                        
     <<
     """.stripIndent()
 
