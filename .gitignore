@@ -10,3 +10,5 @@ temp*/
 del/
 nf_tryout/
 bioinf.code-workspace
+data/.nextflow.pid
+data/Merged*
