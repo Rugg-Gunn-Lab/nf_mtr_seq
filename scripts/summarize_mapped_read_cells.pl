@@ -14,9 +14,26 @@ use warnings;
 my $fastq = $ARGV[0];
 
 my $bam = $ARGV[1];
+
+if ( $bam =~ /bam/ ) {
+	print "bam file found"
+} else {
+	die "No bam file found: $!"; 
+}
+
+
 #my $out = "$fastq\_summary.xls" or die $!;
 my $out = $fastq;
 $out =~ s/.gz/_summary.xls/;
+
+my $log = $out;
+$log =~ s/.xls/_log.out/;
+
+open LOG, ">$log" or die "Couldn't open outfile $!";
+print LOG "fastq file is ";
+print LOG "$fastq\n";
+print LOG "bam file is $bam\n";
+close LOG;
 
 my %hash_all;
 my %hash_50;
@@ -31,7 +48,7 @@ my %n_fragments_all_100;
 my %n_fragments_50;
 my %n_fragments_50_100;
 
-open IN, "zcat $fastq|" or die $!;
+open IN, "zcat $fastq|" or die "Couldn't open fastq file: $!";
 while(<IN>){
 	my $line1 = $_;
 	my $line2 = <IN>;
@@ -50,14 +67,14 @@ while(<IN>){
 close IN;
 
 
-open IN, "samtools view $bam|" or die $!;
+open IN, "samtools view $bam|" or die "Couldn't open bam file: $!";
 while(<IN>){
 	chomp;
 	my @tmp = split/\s+/, $_;
 	my $umi = substr($tmp[0], -8, 9);
 	my $cell_id = substr($tmp[0], -20, 11);
 	my $chr = $tmp[2];
-my $pos = $tmp[3];
+	my $pos = $tmp[3];
 	my $pos100 = int($pos/50);
 	## all reads
 	$hash_all{$cell_id}{"mapped"} = 0 if not exists $hash_all{$cell_id}{"mapped"};
@@ -85,7 +102,7 @@ my $pos = $tmp[3];
 }
 close IN;
 
-open OUT, ">$out" or die $!;
+open OUT, ">$out" or die "Couldn't open outfile $!";
 #open OUT, ">$fastq\_summary.xls" or die $!;
 foreach my $cell_id (keys %hash_50){
 	my $n_reads_all = $hash_all{$cell_id}{"raw"};
