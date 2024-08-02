@@ -84,7 +84,7 @@ process SAM_TO_FASTQ {
         """
 }
 
-|| echo "no module found"
+//|| echo "no module found"
 
 process ADD_BAM_CB_TAG {
 
@@ -250,10 +250,16 @@ process SUMMARIZE_MAPPED_READ_CELLS {
 		mode: "link", overwrite: true
 
     script:
+        // we only want R1 
+        if (fq_file instanceof List) {
+            fq = fq_file[0]
+        } else {
+            fq = fq_file
+        }
 
         """   
         module load samtools  
-        perl ${script_path}/summarize_mapped_read_cells.pl ${fq_file} ${bam}
+        perl ${script_path}/summarize_mapped_read_cells.pl ${fq} ${bam}
         """   
 }
 
