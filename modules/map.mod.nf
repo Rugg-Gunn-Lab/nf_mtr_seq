@@ -76,7 +76,8 @@ process STAR {
 		//path "*final.out",               emit: stats 
         path "*.txt",               emit: stats 
 
-    publishDir "${outputdir}/nf_chosen_outputs",
+    //publishDir "${outputdir}/nf_chosen_outputs",
+	publishDir "${outputdir}",
 		mode: "link", overwrite: true
 
     script:
@@ -106,7 +107,8 @@ process BOWTIE_BC {
 
     // we only want the stats file written out as a hard link, not the sam file
     publishDir = [
-        path: { "${outputdir}/nf_chosen_outputs" },
+        //path: { "${outputdir}/nf_chosen_outputs" },
+		path: { "${outputdir}" },
         mode: "link", overwrite: true,
         pattern: "*.txt"
     ]

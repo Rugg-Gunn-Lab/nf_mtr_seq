@@ -98,7 +98,7 @@ process ADD_BAM_CB_TAG {
     output:
         tuple val(name), path ("*10X.bam"), emit: reads
 
-    publishDir "${outputdir}/nf_chosen_outputs",
+    publishDir "${outputdir}",
 		mode: "link", overwrite: true
 
     script:
@@ -124,7 +124,7 @@ process BAM2COUNT_MATRIX {
     output:
         tuple val(name), path ("${name}_splitpool_output"), emit: splitpool
 
-    publishDir "${outputdir}/nf_chosen_outputs",
+    publishDir "${outputdir}",
 		mode: "link", overwrite: true
 
     script:
@@ -151,7 +151,7 @@ process BAM2COUNT_MATRIX_SPARSE {
         path("${name}_splitpool_output/barcodes.tsv.gz"), emit: barcodes
         path("${name}_splitpool_output/features.tsv.gz"), emit: features
 
-    publishDir "${outputdir}/nf_chosen_outputs",
+    publishDir "${outputdir}",
 		mode: "link", overwrite: true
 
     script:
@@ -222,7 +222,7 @@ process READS_QC_EXTRACT_BC {
     output:
         tuple val(name), path ("*.tsv.gz"), emit: reads
 
-    publishDir "${outputdir}/nf_chosen_outputs",
+    publishDir "${outputdir}",
 		mode: "link", overwrite: true
 
     script:
