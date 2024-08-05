@@ -52,8 +52,8 @@ process BOWTIE2 {
 		bowtie_name = name + "_" + params.genome["name"]
 
 		"""
-		module load bowtie2
-		module load samtools
+		module load bowtie2 || echo "no module found"
+		module load samtools || echo "no module found"
 		bowtie2 -x ${index} -p ${cores} ${bowtie_options} ${readString}  2>${bowtie_name}_bowtie2_stats.txt | samtools view -bS -F 4 -F 8 -F 256 -> ${bowtie_name}_bowtie2.bam
 		"""
 
@@ -82,8 +82,8 @@ process STAR {
     script:
        
         """
-        module load star
-        module load samtools
+        module load star || echo "no module found"
+        module load samtools || echo "no module found"
         STAR --runThreadN 16 --genomeDir ${star_index} --readFilesIn ${reads} --readFilesCommand zcat --outStd SAM 2>${name}_star_out2.txt | samtools view -h -b -q 50 --threads 16 - | samtools sort --threads 16 -o ${name}_filt_sorted.bam
         """
 }
@@ -115,8 +115,8 @@ process BOWTIE_BC {
         cores = 8
 
         """
-        module load bowtie
-        module load samtools
+        module load bowtie || echo "no module found"
+        module load samtools || echo "no module found"
         bowtie ${barcode_genome} --sam -p ${cores} ${bowtie_args} ${reads} 2>${name}_bowtie_stats_barcodes.txt ${name}_mapped_BC.sam
         """
 }

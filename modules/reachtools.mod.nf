@@ -8,8 +8,8 @@ process REACHTOOLS_COMBINE2 {
 
     //label 'mem40G' 
 
-    publishDir "${outputdir}/nf_chosen_outputs",
-		mode: "link", overwrite: true
+   // publishDir "${outputdir}/nf_chosen_outputs",
+	//	mode: "link", overwrite: true
 
     input:
     tuple val(sample_id), path(reads)
@@ -21,15 +21,16 @@ process REACHTOOLS_COMBINE2 {
 
     script:
     """
-    module load paired_tag   
+    module load paired_tag  || echo "no module found" 
     mkdir reachtools_${sample_id}_logs   
     reachtools combine2 $sample_id
     """
 }
 
 process REACHTOOLS_COMBINE3 {
-    publishDir "${outputdir}/nf_chosen_outputs",
-		mode: "link", overwrite: true
+
+   // publishDir "${outputdir}/nf_chosen_outputs",
+	//	mode: "link", overwrite: true
 
     input:
     tuple val(sample_id), path(reads)
@@ -41,15 +42,16 @@ process REACHTOOLS_COMBINE3 {
 
     script:
     """
-    module load paired_tag   
+    module load paired_tag || echo "no module found"
     mkdir reachtools_${sample_id}_logs   
     reachtools combine3 $sample_id
     """
 }
 
 process REACHTOOLS_COMBINE_BULK {
-    publishDir "${outputdir}/nf_chosen_outputs",
-		mode: "link", overwrite: true
+
+   // publishDir "${outputdir}/nf_chosen_outputs",
+	//	mode: "link", overwrite: true
 
     input:
         tuple val(sample_id), path(reads)
@@ -61,7 +63,7 @@ process REACHTOOLS_COMBINE_BULK {
 
     script:
     """
-    module load paired_tag   
+    module load paired_tag  || echo "no module found" 
     mkdir reachtools_${sample_id}_logs   
     reachtools combinebulk $sample_id
     """
@@ -71,8 +73,8 @@ process REACHTOOLS_RMDUP2 {
 
     label 'bigMem'
 
-    publishDir "${outputdir}/nf_chosen_outputs",
-		mode: "link", overwrite: true
+   // publishDir "${outputdir}/nf_chosen_outputs",
+	//	mode: "link", overwrite: true
 
     input:
         tuple val(sample_id), path(mapped_reads)
@@ -83,30 +85,8 @@ process REACHTOOLS_RMDUP2 {
 
     script:
     """
-    module load paired_tag 
-    module load samtools    
+    module load paired_tag || echo "no module found"
+    module load samtools || echo "no module found"
     reachtools rmdup2 $mapped_reads
     """
 }
-
-// when we're using this later on we don't have the read name anymore
-// don't think we actually need this any more
-// process REACHTOOLS_RMDUP2_ONLY_BAM {
-
-//     publishDir "${outputdir}/nf_chosen_outputs",
-// 		mode: "link", overwrite: true
-
-//     input:
-//         path(mapped_reads)
-//         val (outputdir)
-
-//     output:
-//         path ("*rmdup.bam"), emit: reads
-
-//     script:
-//     """
-//     module load paired_tag 
-//     module load samtools    
-//     reachtools rmdup2 $mapped_reads
-//     """
-// }

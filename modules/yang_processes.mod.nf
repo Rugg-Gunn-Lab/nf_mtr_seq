@@ -51,8 +51,8 @@ process SAM_TO_COV_FASTQ_PAIRED {
 	output:
 	    tuple val(name), path ("*fq.gz"),  emit: reads
 
-    publishDir "${outputdir}/nf_chosen_outputs",
-		mode: "link", overwrite: true
+   // publishDir "${outputdir}/nf_chosen_outputs",
+	//	mode: "link", overwrite: true
 
     script:
 
@@ -73,13 +73,13 @@ process SAM_TO_FASTQ {
 	    tuple val(name), path ("*fq.gz"),  emit: reads
 		path "*log",                       emit: stats 
 
-    publishDir "${outputdir}/nf_chosen_outputs",
-		mode: "link", overwrite: true
+   // publishDir "${outputdir}/nf_chosen_outputs",
+	//	mode: "link", overwrite: true
 
     script:
 
         """
-        module load paired_tag
+        module load paired_tag || echo "no module found"
         reachtools convert2 ${mapped_reads} 1>reads_processed.log
         """
 }
@@ -104,7 +104,7 @@ process ADD_BAM_CB_TAG {
     script:
 
         """ 
-        module load python 
+        module load python || echo "no module found"
         python3 ${script_path}/add.bam.CB.tag.py -i ${mapped_reads} -p 30  
         """
 } 
@@ -130,7 +130,7 @@ process BAM2COUNT_MATRIX {
     script:
 
         """ 
-        module load python
+        module load python || echo "no module found"
         python3 ${script_path}/quantitate_splitpool_scrna.py --output matrix ${gtf_file} ${mapped_reads} ${name}_splitpool_output
         
         """
@@ -157,7 +157,7 @@ process BAM2COUNT_MATRIX_SPARSE {
     script:
 
         """ 
-        module load python
+        module load python || echo "no module found"
         python3 ${script_path}/quantitate_splitpool_scrna.py --output sparse ${gtf_file} ${mapped_reads} ${name}_splitpool_output
         
         """
@@ -176,13 +176,13 @@ process BAM2BED {
     output:
         tuple val(name), path ("*.bed.gz"), emit: reads
 
-    publishDir "${outputdir}/nf_chosen_outputs",
-		mode: "link", overwrite: true
+    //publishDir "${outputdir}/nf_chosen_outputs",
+	//	mode: "link", overwrite: true
 
     script:
 
         """ 
-        module load bedtools
+        module load bedtools || echo "no module found"
         bedtools bamtobed -i ${mapped_reads} ${bam2bed_args} | gzip > ${mapped_reads}.bed.gz
         """
 }
@@ -199,18 +199,16 @@ process BAM2BED_NOINDEX {
     output:
         tuple val(name), path ("*.bed"), emit: reads
 
-    publishDir "${outputdir}/nf_chosen_outputs",
-		mode: "link", overwrite: true
+   // publishDir "${outputdir}/nf_chosen_outputs",
+	//	mode: "link", overwrite: true
 
     script:
 
         """ 
-        module load bedtools
+        module load bedtools || echo "no module found"
         bedtools bamtobed -i ${mapped_reads} ${bam2bed_args} > ${mapped_reads}.bed
         """
 }
-
-//bedtools bamtobed -i ${mapped_reads} ${bam2bed_args} | gzip > ${mapped_reads}.bed.gz
 
 
 process READS_QC_EXTRACT_BC {
@@ -236,7 +234,8 @@ process READS_QC_EXTRACT_BC {
 
 process SUMMARIZE_MAPPED_READ_CELLS {
 
-    label 'mem40G'
+    //label 'mem40G'
+    label 'hugeMem' // 80GB
 
     input:
         tuple val(name), path(fq_file)
@@ -258,7 +257,7 @@ process SUMMARIZE_MAPPED_READ_CELLS {
         }
 
         """   
-        module load samtools  
+        module load samtools || echo "no module found"
         perl ${script_path}/summarize_mapped_read_cells.pl ${fq} ${bam}
         """   
 }
@@ -272,15 +271,14 @@ process COUNT_PILEUPS {
     output:
         path ("*txt"), emit: tally
 
-    publishDir "${outputdir}/nf_chosen_outputs",
-		mode: "link", overwrite: true
+   // publishDir "${outputdir}/nf_chosen_outputs",
+	//	mode: "link", overwrite: true
 
     script:
 
         """ 
-        module load python
-        python3 ${script_path}/count_pileups.py ${mapped_reads} ${name}_filtered_pos_strand_tally.txt
-        
+        module load python || echo "no module found"
+        python3 ${script_path}/count_pileups.py ${mapped_reads} ${name}_filtered_pos_strand_tally.txt       
         """
 }
 
@@ -297,14 +295,13 @@ process REMOVE_PILEUPS {
         tuple val(name), path ("*bam"), emit: rmpile
         
 
-    publishDir "${outputdir}/nf_chosen_outputs",
-		mode: "link", overwrite: true
+   // publishDir "${outputdir}/nf_chosen_outputs",
+	//	mode: "link", overwrite: true
 
     script:
 
         """ 
-        module load python
+        module load python || echo "no module found"
         python3 ${script_path}/remove_pileups.py ${mapped_reads} ${tally} ${name}_sorted_rmdup_rmpiles.bam ${cutoff}
-        
         """
 }

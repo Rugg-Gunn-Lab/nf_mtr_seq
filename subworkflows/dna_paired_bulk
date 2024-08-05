@@ -28,8 +28,8 @@ process SAMTOOLS_SORT_FILT {
 		mode: "link", overwrite: true
 		
 		"""
-		module load samtools
-        samtools sort -n ${bam} | samtools view -q 10 -f 0x2 -o ${name}_clean_sorted.bam
+		module load samtools || echo "no module found"
+        samtools sort -n --threads 4 ${bam} | samtools view --threads 4 -q 10 -f 0x2 -o ${name}_clean_sorted.bam
         
 		"""	
 }

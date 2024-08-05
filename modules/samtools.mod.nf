@@ -26,7 +26,7 @@ process SAMTOOLS_FILT {
 		mode: "link", overwrite: true
 		
 		"""
-		module load samtools
+		module load samtools || echo "no module found"
 		samtools view -h -q 10 $bam | samtools sort -o ${bam}_clean_sorted.bam
         rename .bam_clean _clean *
 		"""	
@@ -63,7 +63,7 @@ process SAMTOOLS_SORT{
 		// TODO: Find more elegant way to strip file ending of input BAM file
 
 		"""
-		module load samtools
+		module load samtools || echo "no module found"
 		samtools sort $samtools_sort_options $bam -o ${bam}_sorted.bam 
 		rename .bam_sorted _sorted *
     	"""	
@@ -97,7 +97,7 @@ process SAMTOOLS_INDEX{
 		}
 		
 		"""
-		module load samtools
+		module load samtools || echo "no module found"
 		samtools index $samtools_index_options $bam
 		"""	
 }
@@ -131,7 +131,7 @@ process SAMTOOLS_SORT_SAM{
 		// TODO: Find more elegant way to strip file ending of input BAM file
 
 		"""
-		module load samtools
+		module load samtools || echo "no module found"
 		samtools view $sam | samtools sort $samtools_sort_options -o ${sam}_sorted.bam 
 		rename .bam_sorted _sorted *
     	"""	

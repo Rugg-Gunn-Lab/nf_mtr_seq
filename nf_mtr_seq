@@ -24,6 +24,9 @@ module load nextflow
 /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition paired //bi/group/bioinf/Laura_B//nf_mtr_seq/data/Merged_HIST_D_S1_L002_R*.fq.gz
 /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition relax //bi/group/bioinf/Laura_B//nf_mtr_seq/data/Merged_HIST_D_S1_L002_R*.fq.gz
 
+/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg -resume --type dna --genome GRCh38 --condition paired //bi/group/bioinf/Laura_B//nf_mtr_seq/data/Merged_HIST_D_S1_L002_R*.fq.gz
+
+
 
 RNA
 // full size
@@ -45,6 +48,7 @@ params.verbose = false
 params.list_genomes = false
 params.help = false
 params.no_output = false
+params.fastqc_args = ''
 
 // The number of bases to add to R2 length
 bulk_extension = 99
@@ -86,15 +90,18 @@ include { getFileBaseNames }                    from './modules/file_basenames.m
 include { REACHTOOLS_COMBINE2 }                 from './modules/reachtools.mod.nf'
 include { REACHTOOLS_COMBINE3 }                 from './modules/reachtools.mod.nf'
 include { REACHTOOLS_COMBINE_BULK }             from './modules/reachtools.mod.nf'
-include { TRIM_GALORE }                         from './modules/trim_galore.mod.nf'
-include { TRIM_GALORE as TRIM_GALORE2 }         from './modules/trim_galore.mod.nf'
+include { TRIM_GALORE }                         from './modules/trim_galore.mod.nf'                 params(no_output: true)
+include { TRIM_GALORE as TRIM_GALORE2 }         from './modules/trim_galore.mod.nf'                 params(no_output: true)
 include { BOWTIE_BC }                           from './modules/map.mod.nf'
-include { BOWTIE2 }                             from './modules/map.mod.nf'                         params(genome: genome)
+include { BOWTIE2 }                             from './modules/map.mod.nf'                         params(genome: genome, no_output: true)
+include { FASTQC }                              from './modules/fastqc.mod.nf'                      params(nogroup: true)
+include { FASTQC as FASTQC2 }                   from './modules/fastqc.mod.nf'                      
+include { FASTQC as FASTQC3 }                   from './modules/fastqc.mod.nf'                      
 include { SAM_TO_FASTQ }                        from './modules/yang_processes.mod.nf'
 include { SAM_TO_COV_FASTQ_PAIRED }             from './modules/yang_processes.mod.nf'
 include { SUMMARIZE_MAPPED_READ_CELLS }         from './modules/yang_processes.mod.nf'
 include { SAMTOOLS_FILT }                       from './modules/samtools.mod.nf'
-include { SAMTOOLS_SORT }                       from './modules/samtools.mod.nf'
+include { SAMTOOLS_SORT }                       from './modules/samtools.mod.nf'                    params(no_output: true)
 include { GET_R2_LENGTH }                       from './modules/yang_processes.mod.nf'
 include { DNA_PAIRED_BULK }                     from './subworkflows/dna_paired_bulk'               params(outdir: params.outdir, verbose: params.verbose)
 include { DNA_STRINGENT_RELAX }                 from './subworkflows/dna_stringent_relax'           params(outdir: params.outdir, verbose: params.verbose)
@@ -104,7 +111,7 @@ trim_galore_args_paired = ''
 trim_galore_args1 = '--cores 4 --quality 30 --stringency 5 --length 28'
 bowtie_bc_args_stringent = '--norc -m 1 -v 0 -p 30'
 bowtie_bc_args_relax = '--norc -a --best --strata -v 1 -p 30'
-samtools_sort_args  = ''
+samtools_sort_args  = '--threads 4'
 
 if (params.condition == "bulk"  | params.condition == "paired"){
     bowtie2_args = '--end-to-end'
@@ -144,19 +151,25 @@ workflow {
 
     main:
 
+        FASTQC(file_ch, params.outdir, params.fastqc_args, params.verbose)
+
         if(params.condition == "stringent") {
             REACHTOOLS_COMBINE2 (file_ch, params.outdir)
             TRIM_GALORE (REACHTOOLS_COMBINE2.out.comb, params.outdir, trim_galore_args1, params.verbose)
+            FASTQC2(TRIM_GALORE.out.reads, params.outdir, params.fastqc_args, params.verbose)
             BOWTIE_BC (TRIM_GALORE.out.reads, params.outdir, bowtie_bc_args_stringent, barcode_genome)
         } else if (params.condition == "relax") {
             REACHTOOLS_COMBINE2 (file_ch, params.outdir)
+            FASTQC2 (REACHTOOLS_COMBINE2.out.comb, params.outdir, params.fastqc_args, params.verbose)
             BOWTIE_BC (REACHTOOLS_COMBINE2.out.comb, params.outdir, bowtie_bc_args_relax, barcode_genome)
         } else if(params.condition == "paired") {
             REACHTOOLS_COMBINE3 (file_ch, params.outdir)
             TRIM_GALORE (REACHTOOLS_COMBINE3.out.comb, params.outdir, trim_galore_args1, params.verbose)
+            FASTQC2(TRIM_GALORE.out.reads, params.outdir, params.fastqc_args, params.verbose)
             BOWTIE_BC (TRIM_GALORE.out.reads, params.outdir, bowtie_bc_args_stringent, barcode_genome)
         } else if (params.condition == "bulk") {
             REACHTOOLS_COMBINE_BULK (file_ch, params.outdir)
+            FASTQC2 (REACHTOOLS_COMBINE_BULK.out.comb, params.outdir, params.fastqc_args, params.verbose)
             BOWTIE_BC (REACHTOOLS_COMBINE_BULK.out.comb, params.outdir, bowtie_bc_args_stringent, barcode_genome)
         } else {
             println ("need a valid condition: " + params.condition)
@@ -176,6 +189,8 @@ workflow {
             SAM_TO_FASTQ(BOWTIE_BC.out.sam, params.outdir)
             TRIM_GALORE2(SAM_TO_FASTQ.out.reads, params.outdir, trim_galore_args_paired, params.verbose)
         }
+
+        FASTQC3(file_ch, params.outdir, params.fastqc_args, params.verbose)
 
         if (params.type == "dna") {
 
@@ -203,7 +218,7 @@ workflow {
             RNA_MAP_PROCESS(TRIM_GALORE2.out.reads)
 
         } else {
-            println("Shoudln't have got to here, something's gone wrong with the data_type " + params.type + "\n")
+            println("Shouldn't have got to here, something's gone wrong with the data_type " + params.type + "\n")
             exit 1
         }
 
