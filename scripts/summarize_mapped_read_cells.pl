@@ -115,8 +115,9 @@ foreach my $cell_id (keys %hash_50){
 	my $n_fragments_all_100 = keys %{$unique_100_all{$cell_id}};
 	my $n_fragments_50 = keys %{$unique_50{$cell_id}};
 	my $n_fragments_50_100 = keys %{$unique_100_50{$cell_id}};
-	my $output = "$cell_id\t$n_reads_all\t$n_mapped_all\t$n_uniquely_mapped_all\t$n_fragments_all\t$n_fragments_all_100\t";
-	   $output .= "$n_reads_50\t$n_mapped_50\t$n_uniquely_mapped_50\t$n_fragments_50\t$n_fragments_50_100\n";
+	my $output = "$cell_id\t$n_reads_all\t$n_mapped_all\t$n_fragments_all\n";
+	#my $output = "$cell_id\t$n_reads_all\t$n_mapped_all\t$n_uniquely_mapped_all\t$n_fragments_all\t$n_fragments_all_100\t";
+	#   $output .= "$n_reads_50\t$n_mapped_50\t$n_uniquely_mapped_50\t$n_fragments_50\t$n_fragments_50_100\n";
 	print OUT $output;
 }
 close OUT;
