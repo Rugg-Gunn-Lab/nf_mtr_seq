@@ -6,12 +6,8 @@ nextflow.enable.dsl=2
 TODO:
 I think it's all ok - do some more tidying, run each of the small versions, then set the full ones going - maybe add more memory for count_pileups
 
-
-
-move bowtie2, bowtie_bc, star, trim_galore to a module called mapping_trimming
-Add in module load xx || echo "no module found"
 Clean up genomes.d so there are only necessary paths
-List all d programs
+List all programs dependencies
 
 DNA
 module load nextflow
