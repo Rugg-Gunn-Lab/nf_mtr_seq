@@ -264,6 +264,8 @@ process SUMMARIZE_MAPPED_READ_CELLS {
 
 process COUNT_PILEUPS {
 
+    label 'mem40G'
+
     input:
         tuple val(name), path(mapped_reads)
         val (outputdir)

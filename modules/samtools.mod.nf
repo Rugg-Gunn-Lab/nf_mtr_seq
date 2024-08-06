@@ -1,14 +1,12 @@
 nextflow.enable.dsl=2
 
-/** 
- This is a temporary storage location for these processes - we'll organise properly 
- once we've gone through the pipeline more thoroughly and worked out a structure
- */
+params.no_output = false
 
-script_path="/bi/group/bioinf/Laura_B/nf_yang_wang/scripts/"
-splitpool_path = "/bi/group/bioinf/Laura_B/nf_yang_wang/splitpoolquantitation/"
 
-// ONLY KEEP UNIQUE READS
+//script_path="/bi/group/bioinf/Laura_B/nf_yang_wang/scripts/"
+//splitpool_path = "/bi/group/bioinf/Laura_B/nf_yang_wang/splitpoolquantitation/"
+
+// ONLY KEEP UNIQUE READS - where is this used? - just in the main workflow
 process SAMTOOLS_FILT {
 
     // 	tag "$bam"     // Adds name to job submission instead of (1), (2) etc.
@@ -16,23 +14,50 @@ process SAMTOOLS_FILT {
 
 	input:
         tuple val(name), path (bam)
-		//path(bam)	
-        val (outputdir)	
+		val (outputdir)
+		val (samtools_filt_args)	
 
 	output:
 		tuple val(name), path ("*bam"), 	  emit: bam
 
-    publishDir "${outputdir}/nf_chosen_outputs",
+    publishDir "${outputdir}",
 		mode: "link", overwrite: true
 		
 		"""
 		module load samtools || echo "no module found"
-		samtools view -h -q 10 $bam | samtools sort -o ${bam}_clean_sorted.bam
+		samtools view -h -q 10 $bam -o ${bam}_clean.bam
         rename .bam_clean _clean *
 		"""	
 }
 
-params.no_output = false
+
+
+// process SAMTOOLS_FILT {
+
+//     // 	tag "$bam"     // Adds name to job submission instead of (1), (2) etc.
+// 	label 'bigMem' // 20GB
+
+// 	input:
+//         tuple val(name), path (bam)
+// 		//path(bam)	
+//         val (outputdir)	
+
+// 	output:
+// 		tuple val(name), path ("*bam"), 	  emit: bam
+
+//     publishDir "${outputdir}/nf_chosen_outputs",
+// 		mode: "link", overwrite: true
+		
+// 		"""
+// 		module load samtools || echo "no module found"
+// 		samtools view -h -q 10 $bam | samtools sort -o ${bam}_clean_sorted.bam
+//         rename .bam_clean _clean *
+// 		"""	
+// }
+
+
+
+
 
 process SAMTOOLS_SORT{	
     

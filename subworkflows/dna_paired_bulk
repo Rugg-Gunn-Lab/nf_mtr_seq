@@ -3,36 +3,41 @@
 // 
 // This will just take a bam file as input, not a tuple with the name
 
-//include { SAMTOOLS_INDEX }               from '/bi/apps/nextflow/nextflow_pipelines/nf_modules/samtools.mod.nf'
+include { SAMTOOLS_SORT }                from '../modules/samtools.mod.nf'
+include { SAMTOOLS_FILT }                from '../modules/samtools.mod.nf'
 include { BAM2BED_NOINDEX }              from '../modules/yang_processes.mod.nf'
 include { READS_QC_EXTRACT_BC }          from '../modules/yang_processes.mod.nf'
 include { SUMMARIZE_MAPPED_READ_CELLS }  from '../modules/yang_processes.mod.nf'
 
 bam2bed_args = "-bedpe"
-samtools_index_args = ""
+samtools_sort_args = "-n" // sort by name
+samtools_filt_args = "--threads 4 -q 10 -f 0x2"
 
 // ONLY KEEP UNIQUE READS
-process SAMTOOLS_SORT_FILT {
+// this might be better split into 2 separate processes - it's super slow and that may be because it's not writing to temp files,
+// but piping
+// change to SAMTOOLS_SORT_NAME and then FILT
+// process SAMTOOLS_SORT_FILT {
 
-    // 	tag "$bam"     // Adds name to job submission instead of (1), (2) etc.
-	label 'bigMem' // 20GB
+//     // 	tag "$bam"     // Adds name to job submission instead of (1), (2) etc.
+// 	label 'bigMem' // 20GB
 
-	input:
-        tuple val(name), path (bam)
-        val (outputdir)	
+// 	input:
+//         tuple val(name), path (bam)
+//         val (outputdir)	
 
-	output:
-		tuple val(name), path ("*bam"), 	  emit: bam
+// 	output:
+// 		tuple val(name), path ("*bam"), 	  emit: bam
 
-    publishDir "${outputdir}/nf_chosen_outputs",
-		mode: "link", overwrite: true
+//     publishDir "${outputdir}",
+// 		mode: "link", overwrite: true
 		
-		"""
-		module load samtools || echo "no module found"
-        samtools sort -n --threads 4 ${bam} | samtools view --threads 4 -q 10 -f 0x2 -o ${name}_clean_sorted.bam
+// 		"""
+// 		module load samtools || echo "no module found"
+//         samtools sort -n --threads 4 ${bam} | samtools view --threads 4 -q 10 -f 0x2 -o ${name}_clean_sorted.bam
         
-		"""	
-}
+// 		"""	
+// }
 
 // Only extract the fragment related columns and cellids, umi
 process FILTER_READS {
@@ -44,7 +49,7 @@ process FILTER_READS {
     output:
         tuple val(name), path ("*.bed.gz"), emit: reads
 
-    publishDir "${outputdir}/nf_chosen_outputs",
+    publishDir "${outputdir}",
 		mode: "link", overwrite: true
 
     script:
@@ -63,7 +68,7 @@ process SORT_DEDUP {
     output:
         tuple val(name), path ("*.tsv.gz"), emit: reads
 
-    publishDir "${outputdir}/nf_chosen_outputs",
+    publishDir "${outputdir}",
 		mode: "link", overwrite: true
 
     script:
@@ -85,9 +90,11 @@ workflow DNA_PAIRED_BULK {
 
     main:
         
-        SAMTOOLS_SORT_FILT(mapped_reads, params.outdir) // sort by name
+        SAMTOOLS_SORT(mapped_reads, params.outdir, samtools_sort_args, false) // sort by name, verbose=false
+        SAMTOOLS_FILT(SAMTOOLS_SORT.out.bam, params.outdir, samtools_filt_args)
+        //SAMTOOLS_SORT_FILT(mapped_reads, params.outdir) // sort by name
 
-        BAM2BED_NOINDEX(SAMTOOLS_SORT_FILT.out.bam, params.outdir, bam2bed_args)
+        BAM2BED_NOINDEX(SAMTOOLS_FILT.out.bam, params.outdir, bam2bed_args)
         FILTER_READS(BAM2BED_NOINDEX.out.reads, params.outdir)
         READS_QC_EXTRACT_BC(FILTER_READS.out.reads, params.outdir)
         SORT_DEDUP(READS_QC_EXTRACT_BC.out.reads, params.outdir)
