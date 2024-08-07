@@ -1,19 +1,28 @@
 # Nextflow Pipeline for processing mtr-seq data
 
+Usage with test data:
+```
+./nf_mtr_seq -bg --type dna --genome GRCh38 --condition bulk      --outdir test_bulk_results      data/test.HIST_Bulk_D0*fq.gz
+./nf_mtr_seq -bg --type dna --genome GRCh38 --condition paired    --outdir test_paired_results    data/test.HIST_D_S1_*.fq.gz
+./nf_mtr_seq -bg --type dna --genome GRCh38 --condition stringent --outdir test_stringent_results data/test.HIST_D_S1_*.fq.gz
+./nf_mtr_seq -bg --type dna --genome GRCh38 --condition relax     --outdir test_relax_results     data/test.HIST_HIST_D_S1_*.fq.gz
+
+./nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent --outdir test_rna data/test.SLX23062_AGTTCC_GTAAGGAG_HIST_R_S1_S1_L001_R*.fq.gz
+```
+
 Dependencies (versions listed are those used during development of the pipeline):
 
-nextflow (v23.10.1)
-samtools (v1.19.2)
-bowtie (v1.3.1)
-bowtie2 (v2.5.3)
-star (2.7.11b)
-fastqc (v0.12.1)
-trim_galore (v0.6.10)
-python (v3.12.2)
-bedtools (v2.31.0) 
-perl (v5.32.1)
-reachtools (https://github.com/HDBI/Paired-Tag/tree/yangs-reachtools)
-
+- nextflow (v23.10.1)  
+- samtools (v1.19.2)  
+- bowtie (v1.3.1)    
+- bowtie2 (v2.5.3)  
+- star (2.7.11b)  
+- fastqc (v0.12.1)  
+- trim_galore (v0.6.10)  
+- python (v3.12.2)  
+- bedtools (v2.31.0)   
+- perl (v5.32.1)  
+- reachtools (https://github.com/HDBI/Paired-Tag/tree/yangs-reachtools)  
  
 Here is a graphical representation of the workflow:
 ```
