@@ -1,6 +1,18 @@
-# Nextflow Pipeline for Yang's scripts
+# Nextflow Pipeline for processing mtr-seq data
 
-A previous version of this pipeline can be found here: https://github.com/laurabiggins/nf_yang_wang 
+Dependencies (versions listed are those used during development of the pipeline):
+
+nextflow (v23.10.1)
+samtools (v1.19.2)
+bowtie (v1.3.1)
+bowtie2 (v2.5.3)
+star (2.7.11b)
+fastqc (v0.12.1)
+trim_galore (v0.6.10)
+python (v3.12.2)
+bedtools (v2.31.0) 
+perl (v5.32.1)
+reachtools (https://github.com/HDBI/Paired-Tag/tree/yangs-reachtools)
 
  
 Here is a graphical representation of the workflow:
@@ -79,3 +91,4 @@ Here is a graphical representation of the workflow:
 
 
 Yang has a set of scripts that he uses to process sequencing data with multiple barcodes. We are putting this into a NextFlow pipeline to try and streamline the usage of it.
+A previous version of this pipeline can be found here: https://github.com/laurabiggins/nf_yang_wang 
