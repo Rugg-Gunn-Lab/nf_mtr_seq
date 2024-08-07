@@ -5,10 +5,13 @@ data/SLX23062*
 nf_chosen_outputs/
 pipeline.code-workspace
 .nextflow/
-.nextflow.log*
+.nextflow*
 temp*/
 del/
 nf_tryout/
 bioinf.code-workspace
 data/.nextflow.pid
 data/Merged*
+test*
+execution*
+work
