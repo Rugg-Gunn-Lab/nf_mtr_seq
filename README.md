@@ -93,8 +93,8 @@ Here is a graphical representation of the workflow:
                                                                 |
                                                                 --- BAM2BED2
                                                                     |
-```
                                                                     --- READS_QC_EXTRACT_BC2
+```
                                                                     
                                                          
 
