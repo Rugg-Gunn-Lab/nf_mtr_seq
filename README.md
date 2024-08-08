@@ -96,8 +96,5 @@ Here is a graphical representation of the workflow:
                                                                     --- READS_QC_EXTRACT_BC2
 ```
                                                                     
-                                                         
 
-
-Yang has a set of scripts that he uses to process sequencing data with multiple barcodes. We are putting this into a NextFlow pipeline to try and streamline the usage of it.
 A previous version of this pipeline can be found here: https://github.com/laurabiggins/nf_yang_wang 

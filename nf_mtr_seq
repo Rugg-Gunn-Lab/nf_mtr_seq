@@ -4,14 +4,22 @@ nextflow.enable.dsl=2
 /* 
 
 TODO:
-I think it's all ok - do some more tidying, run each of the small versions, then set the full ones going - maybe add more memory for count_pileups
+We don't have a star genome for mouse so that'll need sorting.
 
-Clean up genomes.d so there are only necessary paths
-List all programs dependencies
 
 DNA
 module load nextflow
 // small test data
+
+./nf_mtr_seq -bg --type dna --genome GRCh38 --condition bulk --outdir test_bulk_results data/test.HIST_Bulk_D0*fq.gz
+./nf_mtr_seq -bg --type dna --genome GRCh38 --condition paired --outdir test_paired_results data/test.HIST_D_S1_*.fq.gz
+./nf_mtr_seq -bg --type dna --genome GRCh38 --condition stringent --outdir test_stringent_results data/test.HIST_D_S1_*.fq.gz
+./nf_mtr_seq -bg --type dna --genome GRCh38 --condition relax --outdir test_relax_results data/test.HIST_HIST_D_S1_*.fq.gz
+
+./nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent --outdir test_rna /data/test.SLX23062_AGTTCC_GTAAGGAG_HIST_R_S1_S1_L001_R*.fq.gz
+
+
+
 /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition bulk //bi/group/bioinf/Laura_B//nf_mtr_seq/data/test.HIST_Bulk_D0*fq.gz
 /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition paired //bi/group/bioinf/Laura_B//nf_mtr_seq/data/test.HIST_D_S1_*.fq.gz
 /bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition stringent //bi/group/bioinf/Laura_B//nf_mtr_seq/data/test.HIST_D_S1_*.fq.gz
@@ -59,8 +67,8 @@ if (params.help){
     exit 0
 }
 
-include { listGenomes }       from '/bi/apps/nextflow/nextflow_pipelines/nf_modules/genomes.mod.nf'
-include { getGenome }         from '/bi/apps/nextflow/nextflow_pipelines/nf_modules/genomes.mod.nf'
+include { listGenomes }       from './modules/genomes.mod.nf'
+include { getGenome }         from './modules/genomes.mod.nf'
 include { get_BC_genome }     from './modules/yang_processes.mod.nf'
 
 if (params.list_genomes){
@@ -318,16 +326,19 @@ def helpMessage() {
 
     Here is a graphical representation of the workflow:
 
+    --- FASTQC
     --- REACHTOOLS_COMBINE
         |
         --- TRIM_GALORE (if condition == "stringent" or "paired" ) else straight to BOWTIE_BC
             |
+            --- FASTQC
             --- BOWTIE_BC - Map barcodes with bowtie
                 |
                 --- SAM_TO_FASTQ or SAM_TO_COV_FASTQ_PAIRED to convert mapped barcodes back to fastq
                     |
                     --- TRIM_GALORE
                         |
+                        --- FASTQC
                             subworkflow
                         --- { RNA }
                             | 
