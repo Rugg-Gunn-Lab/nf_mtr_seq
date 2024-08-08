@@ -71,7 +71,8 @@ process REACHTOOLS_COMBINE_BULK {
 
 process REACHTOOLS_RMDUP2 {
 
-    label 'bigMem'
+    //label 'bigMem'
+    label 'mem40G' 
 
    // publishDir "${outputdir}/nf_chosen_outputs",
 	//	mode: "link", overwrite: true
