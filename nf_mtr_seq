@@ -2,37 +2,18 @@
 nextflow.enable.dsl=2
 
 /* 
-
 TODO:
 We don't have a star genome for mouse so that'll need sorting.
-
 
 DNA
 module load nextflow
 // small test data
-
 ./nf_mtr_seq -bg --type dna --genome GRCh38 --condition bulk --outdir test_bulk_results data/test.HIST_Bulk_D0*fq.gz
 ./nf_mtr_seq -bg --type dna --genome GRCh38 --condition paired --outdir test_paired_results data/test.HIST_D_S1_*.fq.gz
 ./nf_mtr_seq -bg --type dna --genome GRCh38 --condition stringent --outdir test_stringent_results data/test.HIST_D_S1_*.fq.gz
 ./nf_mtr_seq -bg --type dna --genome GRCh38 --condition relax --outdir test_relax_results data/test.HIST_HIST_D_S1_*.fq.gz
 
 ./nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent --outdir test_rna /data/test.SLX23062_AGTTCC_GTAAGGAG_HIST_R_S1_S1_L001_R*.fq.gz
-
-
-
-/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition bulk //bi/group/bioinf/Laura_B//nf_mtr_seq/data/test.HIST_Bulk_D0*fq.gz
-/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition paired //bi/group/bioinf/Laura_B//nf_mtr_seq/data/test.HIST_D_S1_*.fq.gz
-/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition stringent //bi/group/bioinf/Laura_B//nf_mtr_seq/data/test.HIST_D_S1_*.fq.gz
-/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition relax //bi/group/bioinf/Laura_B//nf_mtr_seq/datatest.HIST_D_S1_*.fq.gz
-
-// full size
-/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition bulk //bi/group/bioinf/Laura_B//nf_mtr_seq/data/full_size_DNA_Bulk*fq.gz
-/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition stringent //bi/group/bioinf/Laura_B//nf_mtr_seq/data/Merged_HIST_D_S1_L002_R*.fq.gz
-/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition paired //bi/group/bioinf/Laura_B//nf_mtr_seq/data/Merged_HIST_D_S1_L002_R*.fq.gz
-/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg --type dna --genome GRCh38 --condition relax //bi/group/bioinf/Laura_B//nf_mtr_seq/data/Merged_HIST_D_S1_L002_R*.fq.gz
-
-/bi/group/bioinf/Laura_B//nf_mtr_seq/nf_mtr_seq -bg -resume --type dna --genome GRCh38 --condition paired //bi/group/bioinf/Laura_B//nf_mtr_seq/data/Merged_HIST_D_S1_L002_R*.fq.gz
-
 
 
 RNA
