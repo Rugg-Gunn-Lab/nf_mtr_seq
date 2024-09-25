@@ -22,7 +22,7 @@ Dependencies (versions listed are those used during development of the pipeline)
 - python (v3.12.2)  
 - bedtools (v2.31.0)   
 - perl (v5.32.1)  
-- reachtools (https://github.com/HDBI/Paired-Tag/tree/yangs-reachtools)  
+- reachtools https://zenodo.org/doi/10.5281/zenodo.13833575  
  
 Here is a graphical representation of the workflow:
 ```
