@@ -1,4 +1,4 @@
-# Nextflow Pipeline for processing mtr-seq data
+# Nextflow Pipeline for processing scMTR-seq (single-cell Multi-Targets and mRNA sequencing) data
 
 Usage with test data:
 ```
@@ -98,3 +98,8 @@ Here is a graphical representation of the workflow:
                                                                     
 
 A previous version of this pipeline can be found here: https://github.com/laurabiggins/nf_yang_wang 
+
+Citation:
+Combinatorial profiling of multiple histone modifications and transcriptome in single cells using scMTR-seq 
+Yang Wang, Jingyu Li, Andrew A. Malcolm, William Mansfield, Stephen J. Clark, Ricard Argelaguet, Laura Biggins, Richard Acton, Simon Andrews, Wolf Reik, Gavin Kelsey, Peter J. Rugg-Gunn
+
