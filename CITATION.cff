@@ -2,7 +2,7 @@
 # Visit https://bit.ly/cffinit to generate yours today!
 
 cff-version: 1.2.0
-title: ' nf_mtr_seq'
+title: 'nf_mtr_seq'
 message: >-
   A Nextflow pipeline for analysing scMTR-seq data (a single
   cell multiomics method)
