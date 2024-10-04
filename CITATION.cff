@@ -1,0 +1,36 @@
+# This CITATION.cff file was generated with cffinit (and then manually edited).
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: ' nf_mtr_seq'
+message: >-
+  A Nextflow pipeline for analysing scMTR-seq data (a single
+  cell multiomics method)
+type: software
+authors:
+  - orcid: 'https://orcid.org/0000-0003-2802-5392'
+    given-names: Yang
+    family-names: Wang
+    affiliation: 
+      name: 'Babraham Institute'
+      ror: 'https://ror.org/01d5qpn59'
+    email: yang.wang@babraham.ac.uk
+  - given-names: Laura
+    email: laura.biggins@babraham.ac.uk
+    family-names: Biggins
+    affiliation: 
+      name: 'Babraham Institute'
+      ror: 'https://ror.org/01d5qpn59'
+    orcid: 'https://orcid.org/0000-0002-0975-1121'
+repository-code: 'https://github.com/Rugg-Gunn-Lab/nf_mtr_seq'
+keywords:
+  - multiomics
+  - single-cell
+  - single-cell multiomics
+  - nextflow
+  - pipeline
+  - scMTR-seq
+license: GPL-3.0
+version: v0.0.0-9000
+date-released: '2024-10-04'
+
