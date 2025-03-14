@@ -104,3 +104,5 @@ A previous version of this pipeline can be found here: https://github.com/laurab
 Combinatorial profiling of multiple histone modifications and transcriptome in single cells using scMTR-seq.
 Yang Wang, Jingyu Li, Andrew A. Malcolm, William Mansfield, Stephen J. Clark, Ricard Argelaguet, Laura Biggins, Richard Acton, Simon Andrews, Wolf Reik, Gavin Kelsey, Peter J. Rugg-Gunn
 ```
+
+This project is released under the [GPL v3](./LICENSE) license, for licensing information of the individual tools used in this pipeline please refer to their own documentation.

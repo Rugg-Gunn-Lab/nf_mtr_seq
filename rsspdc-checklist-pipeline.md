@@ -78,7 +78,7 @@ Considerations for publishing a data analysis pipeline which may be used in rese
 		- [ ] Who contributed to the project and what did they contribute?
 		- [ ] Who should I contact, about what, and how?
 		- [ ] What should I expect / Not expect if I contact you?
-		- [ ] How is the project Licensed?
+		- [x] How is the project Licensed?
 		- [ ] Table of Contents (if long enough to benefit from one)
 		- [ ] Bibliography (if reference is made to external resources)
 	- [ ]  	🥈Silver *(intermediate)*: Bronze plus 2 from:
