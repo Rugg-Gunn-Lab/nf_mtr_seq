@@ -64,7 +64,7 @@ Considerations for publishing a data analysis pipeline which may be used in rese
 
 - [ ] Project has suitable documentation
 	- [ ] 	🥉Bronze *(easy)*: Project has README file that either contains directly or links to resources which answer these questions:
-		- [ ] What is the name or title of the project?
+		- [x] What is the name or title of the project?
 		- [ ] Why did you make this pipeline?
 		- [ ] What problem does it address and how?
 		- [ ] Why would I want to use it, what differentiates it from its alternatives?
