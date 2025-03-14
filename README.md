@@ -1,6 +1,29 @@
 # Nextflow Pipeline for processing scMTR-seq (single-cell Multi-Targets and mRNA sequencing) data
 
-Usage with test data:
+## Usage
+
+Explanation of options?
+
+Options:
+
+```
+-bg ?
+--type 
+	dna ?
+	rna ?
+--genome GRCh38 ? 
+--condition
+	bulk - ?
+	paired - ?
+	stringent - ?
+	relax - ?
+--outdir </path/for/output/>
+```
+
+expectations about input data?
+
+Example usage with test data:
+
 ```
 ./nf_mtr_seq -bg --type dna --genome GRCh38 --condition bulk      --outdir test_bulk_results      data/test.HIST_Bulk_D0*fq.gz
 ./nf_mtr_seq -bg --type dna --genome GRCh38 --condition paired    --outdir test_paired_results    data/test.HIST_D_S1_*.fq.gz
