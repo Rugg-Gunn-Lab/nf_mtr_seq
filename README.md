@@ -1,5 +1,12 @@
 # Nextflow Pipeline for processing scMTR-seq (single-cell Multi-Targets and mRNA sequencing) data
 
+## Installation
+
+- Install `Nextflow` according to [their instructions](https://www.nextflow.io/docs/latest/install.html)
+- Clone this git repository: `git clone https://github.com/Rugg-Gunn-Lab/nf_mtr_seq.git`
+
+You are now good to go! and can now follow the usage instructions.
+
 Usage with test data:
 ```
 ./nf_mtr_seq -bg --type dna --genome GRCh38 --condition bulk      --outdir test_bulk_results      data/test.HIST_Bulk_D0*fq.gz

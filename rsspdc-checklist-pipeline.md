@@ -68,7 +68,7 @@ Considerations for publishing a data analysis pipeline which may be used in rese
 		- [ ] Why did you make this pipeline?
 		- [ ] What problem does it address and how?
 		- [ ] Why would I want to use it, what differentiates it from its alternatives?
-		- [ ] How do I install it? (with example)
+		- [x] How do I install it? (with example)
 		- [ ] How do I use it? (with example)
 		- [ ] Where should I go in the project to find what I'm looking for?
 		- [ ] Are you looking for contributions and if so how to contribute?
