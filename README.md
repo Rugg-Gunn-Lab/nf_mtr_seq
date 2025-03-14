@@ -1,5 +1,42 @@
 # Nextflow Pipeline for processing scMTR-seq (single-cell Multi-Targets and mRNA sequencing) data
 
+This pipeline processes single cell sequencing data generated using the method described in [Combinatorial profiling of multiple histone modifications and transcriptome in single cells using scMTR-seq](https://doi.org/).
+A detailed bench protocol for performing this technique can be found here: [protocols.io doi](https://doi.org/)
+
+Profiling combinations of histone modifications identifies gene regulatory elements in different states and discovers features controlling transcriptional and epigenetic programmes.
+However, efforts to map chromatin states in complex,
+heterogeneous samples are hindered by the lack of methods that can profile multiple histone modifications together with transcriptomes inindividual cells.
+
+scMTR-seq (single cell multi-targets and mRNA sequencing) is a multi-omics sequencing technology that can simultaneously profile multiple histone modifications or other chromatin-bound proteins and the transcriptome in the same single cells.
+scMTR-seq has high sensitivity, high cell recovery and is highly scalable in terms of starting material requirement.
+scMTR-seq has high signal specificity when compared with that of other methods which whilst they may have good on traget signal detection had higher levels of off-target signal, see our manuscript for additional details.
+
+The protocol used to produce the libraries analysed by this pipeline follow these high level steps:
+
+i) pre-assemble antibodies specific for each target histone modification or protein with indexed proteinA-Tn5-adapters
+ii) perform in situ Tn5-mediated tagmentation with indexed complexes
+iii) capture nuclear mRNA with a barcoded poly-T primer followed by in situ reverse transcription
+iv) label single cells using split-pool combinatorial barcoding
+
+scMTR-seq has been applied to profile up to 6 histone modifications and transcriptomes in single cells from a broad range of heterogeneous samples including pluripotent stem cell differentiation and mouse pre-implantation embryos.
+
+Here is an outline of the steps performed by this pipeline:
+
+- Cell barcodes (BC) and Unique Molecular Identifiers (UMIs) are extracted from reads with a [modified version](https://doi.org/10.5281/zenodo.13833575) of [reachtools](https://github.com/cxzhu/Paired-Tag)
+	- Sequences are extracted from fixed positions in Read2:
+		- BC3 1-8, BC2 39-46, BC3 77-84
+		- RT-ID 115-119 in RNA data !! explanation of what RT is?
+		- antibody-ID 120-127 in DNA
+	  Combinations of the complete barcode sequences are of the form: `BC1:BC2:BC3(RT-ID|antibody-ID)`
+- Extracted barcode sequences were mapped to all possible barcode combinations with Bowtie.
+- "Mapped cell IDs and UMI were stored in read names of genome sequences." !! I didn't quite follow this - are genome sequences here the possible barcodes?
+- `Trim-galore` is use to trim adapter sequences with default settings
+- Trimmed reads are mapped to the specified genome using `Bowtie2` for DNA and `STAR` for RNA with default settings
+- `samtools` is used to filter for uniquely mapping reads of MAPQ>50 for RNA and MAPQ>10 for DNA
+- For paired-end data only uniquely mapping reads with the correct orientation are retained !! which tools does this still samtools? context for why use paird-end / not paired here
+- Deduplication was performed based on the mapping positions of UMI and cell ID for RNA data and cell ID only for DNA
+- Deduplicated RNA were featurecounted with a custom `splitpoolquantitation` script and converted to a sparse matrix and deduplicated DNA were converted to fragment files.
+
 Usage with test data:
 ```
 ./nf_mtr_seq -bg --type dna --genome GRCh38 --condition bulk      --outdir test_bulk_results      data/test.HIST_Bulk_D0*fq.gz
