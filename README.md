@@ -24,12 +24,12 @@ expectations about input data?
 
 Whilst the sequencing is always paired-end as Read2 contains the barcode information it is possible to use only Read1 in the genomic alignment as length of the genomic sequence in Read2 can be quite short (~20bp)
 
-|           | Barcode mapping | Genome mapping            | Assay type  | library type |
-| --        | --              | --                        | --          | --           |
-| relax     | best mapping    | single end with R1        | single cell | DNA/RNA      |
-| stringent | perfect mapping | single end with R1        | single cell | DNA/RNA      |
-| paired    | perfect mapping | paired-end with R1 and R2 | single cell | DNA          |
-| bulk      | perfect mapping | paired-end with R1 and R2 | bulk assay  | DNA          |
+| Condition   | Barcode mapping | Genome mapping            | Assay type  | library type |
+| --          | --              | --                        | --          | --           |
+| `relax`     | best mapping    | single end with R1        | single cell | DNA/RNA      |
+| `stringent` | perfect mapping | single end with R1        | single cell | DNA/RNA      |
+| `paired`    | perfect mapping | paired-end with R1 and R2 | single cell | DNA          |
+| `bulk`      | perfect mapping | paired-end with R1 and R2 | bulk assay  | DNA          |
 
 Example usage with test data:
 
