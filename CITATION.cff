@@ -14,9 +14,9 @@ authors:
     affiliation: 
       name: 'Babraham Institute'
       ror: 'https://ror.org/01d5qpn59'
-    email: yang.wang@babraham.ac.uk
+    email: 'yang.wang@babraham.ac.uk'
   - given-names: Laura
-    email: laura.biggins@babraham.ac.uk
+    email: 'laura.biggins@babraham.ac.uk'
     family-names: Biggins
     affiliation: 
       name: 'Babraham Institute'
@@ -25,12 +25,12 @@ authors:
 repository-code: 'https://github.com/Rugg-Gunn-Lab/nf_mtr_seq'
 keywords:
   - multiomics
-  - single-cell
-  - single-cell multiomics
+  - 'single-cell'
+  - 'single-cell multiomics'
   - nextflow
   - pipeline
-  - scMTR-seq
-license: GPL-3.0
-version: v0.0.0-9000
+  - 'scMTR-seq'
+license: 'GPL-3.0'
+version: 'v0.0.0-9000'
 date-released: '2024-10-04'
 
