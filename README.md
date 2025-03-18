@@ -24,7 +24,7 @@ Here is an outline of the steps performed by this pipeline:
 
 - Cell barcodes (BC) and Unique Molecular Identifiers (UMIs) are extracted from reads with a [modified version](https://doi.org/10.5281/zenodo.13833575) of [reachtools](https://github.com/cxzhu/Paired-Tag)
 	- Sequences are extracted from fixed positions in Read2:
-		- 1-8 BC3, 39-46 BC2, 77-84 BC3
+		- 1-8 BC3, 39-46 BC2, 77-84 BC1
 		- 115-119
 			- RT-ID in RNA data (Reverse Transcript Index)
 			- antibody-ID in DNA (Index identifying the antibody)
@@ -37,6 +37,77 @@ Here is an outline of the steps performed by this pipeline:
 - `samtools` is used to filter for uniquely mapping reads of MAPQ>50 for RNA and MAPQ>10 for DNA and to retain only uniquely mapping reads with the correct orientation.
 - Deduplication was performed based on the mapping positions of UMI and cell ID for RNA data and cell ID only for DNA
 - Deduplicated RNA were featurecounted with a custom `splitpoolquantitation` script and converted to a sparse matrix and deduplicated DNA were converted to fragment files.
+
+## Example Barcode Information Extraction
+
+Raw Fastq file from a DNA library
+
+Read1
+
+```
+@AV240405:AV_B_YW6191_PE150_27022025:2428602470:1:10102:0226:0064 1:N:0:1 ACTTGA_GTCGGACT
+TTGTAGACCAGGCTGGACTCAAACTCAGAGATCTACCTGTGTCTGCCTCCCTCAGTACTGAAATTAAAGGCGTGAGCCACCACGTCCAGCTAAACTCAG
++
+GLLLLKLLMMMMMMMLMMNNNNNNNNNNNNNNNNNNNMNMNNLNNNNMMMMMMNNNMMMNNMMNNMNMMMMMMMMMMMMMMMMMMLMMMMMMMMMMMML
+```
+Read2
+
+```
+@AV240405:AV_B_YW6191_PE150_27022025:2428602470:1:10102:0226:0064 2:N:0:1 ACTTGA_GTCGGACT
+CCAGTTCAGTGGCCGATGTTTCGCACGGCGTACGACTTCTTCACAGGATTCGAGGAGCGTGTGCGAACTCAGACCCCTCTATCATCCACGTGCTTGAGAGGCCAGAGCATTCGCCATACTCCCAATAGATGTGTATAAGAGACAGACCTGAGGGTGTGAGCAAAAATCTGGAAAGTCAGTGGTGGTAAAATCTGGTACA
++
+FGGGHGGIMMMM@MMMKMMMMMMKGNJHNNNMMNININMLMMMMMKLNNFLLNLKMKMNMNNMMILMMN>JMLM>EHMJCKMCIM>MM=MMH>C>JLMKLKMCCLGLE1GMLM=K=GIJGLKK@JKHC5IJFIJ9CIIJFIDJIHGFII=JHJG6JJJGI9/JJHJ39ICIBJIAFI0JBJJ@3J6JJ;IH1@AJGIJI
+```
+
+Identifier positions:
+
+```
+                                                                                                            Antibody-
+| BC3  |                              | BC2  |                             | BC1  |                              | ID|| UMI  |      
+CCAGTTCAGTGGCCGATGTTTCGCACGGCGTACGACTTCTTCACAGGATTCGAGGAGCGTGTGCGAACTCAGACCCCTCTATCATCCACGTGCTTGAGAGGCCAGAGCATTCGCCATACTCCCAATAGATGTGTATAAGAGACAGACCTGAGGGTGTGAGCAAAAATCTGGAAAGTCAGTGGTGGTAAAATCTGGTACA
+^      ^                              ^      ^                             ^      ^                              ^   ^       ^
+         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         
+         10        20        30        40        50        60        70        80        90        100       110       120       130       140       150       160       170       180       190       
+```
+
+Combine Read1 and Read2, extract barcode for mapping:
+
+```
+@AV240405:AV_B_YW6191_PE150_27022025:2428602470:1:10102:0226:0064:CTCCCAAT:TTGTAGACCAGGCTGGACTCAAACTCAGAGATCTACCTGTGTCTGCCTCCCTCAGTACTGAAATTAAAGGCGTGAGCCACCACGTCCAGCTAAACTCAG:GLLLLKLLMMMMMMMLMMNNNNNNNNNNNNNNNNNNNMNMNNLNNNNMMMMMMNNNMMMNNMMNNMNMMMMMMMMMMMMMMMMMMLMMMMMMMMMMMML:CCTGAGGGTGTGAGCAAAAATCTGGAAAGTCAGTGGTGGTAAAATCTGGTACA:FII=JHJG6JJJGI9/JJHJ39ICIBJIAFI0JBJJ@3J6JJ;IH1@AJGIJI
+CCTCTATCTCTTCACACCAGTTCACCATA
++
+FGGGHGGIMLMMMMMKHMJCKMCIK=GIJ
+```
+
+Identifier Positions:
+
+```
+| BC3  || BC2  || BC1  ||UMI|
+CCTCTATCTCTTCACACCAGTTCACCATA
+^      ^^      ^^      ^^   ^
+         |         |         
+         10        20        
+```
+
+After barcode mapping, now ready for genome mapping with both R1 and R2 (before trimming)
+
+Read1
+
+```
+@AV240405.1.10102.0226.0064:46:32:17:03:CTCCCAAT
+TTGTAGACCAGGCTGGACTCAAACTCAGAGATCTACCTGTGTCTGCCTCCCTCAGTACTGAAATTAAAGGCGTGAGCCACCACGTCCAGCTAAACTCAG
++
+GLLLLKLLMMMMMMMLMMNNNNNNNNNNNNNNNNNNNMNMNNLNNNNMMMMMMNNNMMMNNMMNNMNMMMMMMMMMMMMMMMMMMLMMMMMMMMMMMML
+```
+
+Read2
+
+```
+@AV240405.1.10102.0226.0064:46:32:17:03:CTCCCAAT
+CCTGAGGGTGTGAGCAAAAATCTGGAAAGTCAGTGGTGGTAAAATCTGGTACA
++
+FII=JHJG6JJJGI9/JJHJ39ICIBJIAFI0JBJJ@3J6JJ;IH1@AJGIJI
+```
 
 Usage with test data:
 ```
