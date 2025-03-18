@@ -2,36 +2,47 @@
 
 ## Usage
 
-Explanation of options?
-
-Options:
+`nf_mtr_seq` Options:
 
 ```
--bg ?
---type 
-	dna ?
-	rna ?
---genome GRCh38 ? 
---condition
-	bulk - ?
-	paired - ?
-	stringent - ?
-	relax - ?
+--type ( dna | rna )
+--genome GRCh38 !! ? where is this expected to be, is a pre-built index expected etc? 
+--condition ( relax | stringent | paired | bulk )
 --outdir </path/for/output/>
 ```
 
+`--type` values:
+
+- `dna` -  Cut&Tag, Takes DNA sequences as input and yields DNA fragment files as output
+- `rna` - Takes transcript sequences as input and yields a sparse count matrix as output
+
 expectations about input data?
+
+`--condition` values:
+
+`bulk` is for performing bulk MTR-seq with 'dummy' barcode sequences where single-cell barcodes would normally be
+
+Whilst the sequencing is always paired-end as Read2 contains the barcode information it is possible to use only Read1 in the genomic alignment as length of the genomic sequence in Read2 can be quite short (~20bp)
+
+  | Barcode mapping | Genome mapping | Assay type | library type
+-- | -- | -- | -- | --
+relax | best mapping | single end with R1 | single cell | DNA/RNA
+stringent | perfect mapping | single end with R1 | single cell | DNA/RNA
+paired | perfect mapping | paired-end with R1 and R2 | single cell | DNA
+bulk | perfect mapping | paired-end with R1 and R2 | bulk assay | DNA
 
 Example usage with test data:
 
 ```
-./nf_mtr_seq -bg --type dna --genome GRCh38 --condition bulk      --outdir test_bulk_results      data/test.HIST_Bulk_D0*fq.gz
-./nf_mtr_seq -bg --type dna --genome GRCh38 --condition paired    --outdir test_paired_results    data/test.HIST_D_S1_*.fq.gz
-./nf_mtr_seq -bg --type dna --genome GRCh38 --condition stringent --outdir test_stringent_results data/test.HIST_D_S1_*.fq.gz
 ./nf_mtr_seq -bg --type dna --genome GRCh38 --condition relax     --outdir test_relax_results     data/test.HIST_HIST_D_S1_*.fq.gz
+./nf_mtr_seq -bg --type dna --genome GRCh38 --condition stringent --outdir test_stringent_results data/test.HIST_D_S1_*.fq.gz
+./nf_mtr_seq -bg --type dna --genome GRCh38 --condition paired    --outdir test_paired_results    data/test.HIST_D_S1_*.fq.gz
+./nf_mtr_seq -bg --type dna --genome GRCh38 --condition bulk      --outdir test_bulk_results      data/test.HIST_Bulk_D0*fq.gz
 
 ./nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent --outdir test_rna data/test.SLX23062_AGTTCC_GTAAGGAG_HIST_R_S1_S1_L001_R*.fq.gz
 ```
+
+NB `-bg` is a generic Nextflow flag (denoted by the single preceeding `-`) and causes the pipeline to be run in the background.
 
 Dependencies (versions listed are those used during development of the pipeline):
 
