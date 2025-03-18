@@ -224,8 +224,8 @@ Considerations for publishing a data analysis pipeline which may be used in rese
 
 *How can you test your project so you can be confident it does what you think it does?*
 
-- [ ] Pipeline has been tested
-	- [ ]  	🥉Bronze *(easy)*: The pipeline runs and produces the expected result on a minimal example dataset
+- [x] Pipeline has been tested
+	- [x]  	🥉Bronze *(easy)*: The pipeline runs and produces the expected result on a minimal example dataset
 	- [ ]  	🥈Silver *(easy)*: Bronze plus:
 		- [ ] A wide variety of possible input parameter combinations are tested
 		- [ ] Datasets with different expected outcomes are tested, for example an output value is expected to be low in one dataset and high in another
