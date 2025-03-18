@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1504690.svg)](https://doi.org/10.5281/zenodo.1504690)
+
 # Nextflow Pipeline for processing scMTR-seq (single-cell Multi-Targets and mRNA sequencing) data
 
 Usage with test data:
