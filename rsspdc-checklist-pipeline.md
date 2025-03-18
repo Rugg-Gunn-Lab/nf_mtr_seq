@@ -290,7 +290,7 @@ How can you get third party endorsement of and expert feedback on your project?
 
 - [x] Pipeline has been appropriately reviewed
 	- [x]  	🥉Bronze *(easy)*: Someone other than you has checked over your pipeline and given you feedback
-	- [ ]  	🥈Silver *(intermediate)*: Someone other than you has successfully run your pipeline on different compute infrastructure and got the same results with test data
+	- [x]  	🥈Silver *(intermediate)*: Someone other than you has successfully run your pipeline on different compute infrastructure and got the same results with test data
 	- [ ]  	🥇Gold *(intermediate)*: You have published your pipeline in a pipeline repository which performs reviews of submissions such as nf-core
 	  (The snakmake workflow catalog's review practices would not be adequate for this purpose)
 	- [ ]  	🏆Platinum *(hard)*: Silver, gold and some from:
