@@ -3,6 +3,7 @@
 ## Installation
 
 - Install `Nextflow` according to [their instructions](https://www.nextflow.io/docs/latest/install.html)
+- Install the [dependencies](#dependencies) listed below so that they are available in your environment  
 - Clone this git repository: `git clone https://github.com/Rugg-Gunn-Lab/nf_mtr_seq.git`
 
 You are now good to go! and can now follow the usage instructions.
@@ -17,7 +18,8 @@ Usage with test data:
 ./nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent --outdir test_rna data/test.SLX23062_AGTTCC_GTAAGGAG_HIST_R_S1_S1_L001_R*.fq.gz
 ```
 
-Dependencies (versions listed are those used during development of the pipeline):
+### Dependencies  
+(versions listed are those used during development of the pipeline)
 
 - nextflow (v23.10.1)  
 - samtools (v1.19.2)  
