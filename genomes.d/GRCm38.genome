@@ -1,4 +1,5 @@
 name	GRCm38
 species	Mouse
 bowtie2	/bi/scratch/Genomes/Mouse/GRCm38/Mus_musculus.GRCm38
+star	/path/to/star/directory/
 cellranger_gtf  /bi/apps/cellranger/references/refdata-gex-mm10-2020-A/genes/genes.gtf
