@@ -5,6 +5,7 @@
 - Install `Nextflow` according to [their instructions](https://www.nextflow.io/docs/latest/install.html)
 - Install the [dependencies](#dependencies) listed below so that they are available in your environment  
 - Clone this git repository: `git clone https://github.com/Rugg-Gunn-Lab/nf_mtr_seq.git`
+- Edit the .genome files in the genomes.d folder. Replace the folder/file paths with locally available bowtie2 and star genomes and cellranger gtf file. See bowtie2 and star documentation for building genomes if required.
 
 You are now good to go! and can now follow the usage instructions.
 
