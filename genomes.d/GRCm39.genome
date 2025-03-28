@@ -1,6 +1,5 @@
 name	GRCm39
 species	Mouse
 bowtie2	/bi/scratch/Genomes/Mouse/GRCm39/Mus_musculus.GRCm39
-hisat2	/bi/scratch/Genomes/Mouse/GRCm39/Mus_musculus.GRCm39
-gtf	/bi/scratch/Genomes/Mouse/GRCm39/Mus_musculus.GRCm39.103.gtf
-
+star	/path/to/star/directory/
+cellranger_gtf  /bi/apps/cellranger/references/refdata-gex-GRCm39-2024-A/genes/genes.gtf

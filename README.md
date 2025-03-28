@@ -111,17 +111,17 @@ CCTGAGGGTGTGAGCAAAAATCTGGAAAGTCAGTGGTGGTAAAATCTGGTACA
 FII=JHJG6JJJGI9/JJHJ39ICIBJIAFI0JBJJ@3J6JJ;IH1@AJGIJI
 ```
 
-Usage with test data:
-```
-./nf_mtr_seq -bg --type dna --genome GRCh38 --condition bulk      --outdir test_bulk_results      data/test.HIST_Bulk_D0*fq.gz
-./nf_mtr_seq -bg --type dna --genome GRCh38 --condition paired    --outdir test_paired_results    data/test.HIST_D_S1_*.fq.gz
-./nf_mtr_seq -bg --type dna --genome GRCh38 --condition stringent --outdir test_stringent_results data/test.HIST_D_S1_*.fq.gz
-./nf_mtr_seq -bg --type dna --genome GRCh38 --condition relax     --outdir test_relax_results     data/test.HIST_HIST_D_S1_*.fq.gz
+## Installation
 
-./nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent --outdir test_rna data/test.SLX23062_AGTTCC_GTAAGGAG_HIST_R_S1_S1_L001_R*.fq.gz
-```
+- Install `Nextflow` according to [their instructions](https://www.nextflow.io/docs/latest/install.html)
+- Install the [dependencies](#dependencies) listed below so that they are available in your environment  
+- Clone this git repository: `git clone https://github.com/Rugg-Gunn-Lab/nf_mtr_seq.git`
+- Edit the .genome files in the genomes.d folder. Replace the folder/file paths with locally available bowtie2 and star genomes and cellranger gtf file. See bowtie2 and star documentation for building genomes if required.
 
-Dependencies (versions listed are those used during development of the pipeline):
+You are now good to go! and can now follow the usage instructions.
+
+### Dependencies  
+(versions listed are those used during development of the pipeline)
 
 - nextflow (v23.10.1)  
 - samtools (v1.19.2)  
@@ -134,7 +134,17 @@ Dependencies (versions listed are those used during development of the pipeline)
 - bedtools (v2.31.0)   
 - perl (v5.32.1)  
 - reachtools https://zenodo.org/doi/10.5281/zenodo.13833575  
- 
+
+Usage with test data:
+```
+./nf_mtr_seq -bg --type dna --genome GRCh38 --condition bulk      --outdir test_bulk_results      data/test.HIST_Bulk_D0*fq.gz
+./nf_mtr_seq -bg --type dna --genome GRCh38 --condition paired    --outdir test_paired_results    data/test.HIST_D_S1_*.fq.gz
+./nf_mtr_seq -bg --type dna --genome GRCh38 --condition stringent --outdir test_stringent_results data/test.HIST_D_S1_*.fq.gz
+./nf_mtr_seq -bg --type dna --genome GRCh38 --condition relax     --outdir test_relax_results     data/test.HIST_HIST_D_S1_*.fq.gz
+
+./nf_mtr_seq -bg --type rna --genome GRCh38 --condition stringent --outdir test_rna data/test.SLX23062_AGTTCC_GTAAGGAG_HIST_R_S1_S1_L001_R*.fq.gz
+```
+
 Here is a graphical representation of the workflow:
 ```
 --- REACHTOOLS_COMBINE
