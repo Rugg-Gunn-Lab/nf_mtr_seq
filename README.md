@@ -1,5 +1,7 @@
 # Nextflow Pipeline for processing scMTR-seq (single-cell Multi-Targets and mRNA sequencing) data
 
+## Description
+
 This pipeline processes single cell sequencing data generated using the method described in [Combinatorial profiling of multiple histone modifications and transcriptome in single cells using scMTR-seq](https://doi.org/).
 A detailed bench protocol for performing this technique can be found here: [protocols.io doi](https://doi.org/)
 
@@ -38,7 +40,7 @@ Here is an outline of the steps performed by this pipeline:
 - Deduplication was performed based on the mapping positions of UMI and cell ID for RNA data and cell ID only for DNA
 - Deduplicated RNA were featurecounted with a custom `splitpoolquantitation` script and converted to a sparse matrix and deduplicated DNA were converted to fragment files.
 
-## Example Barcode Information Extraction
+### Example Barcode Information Extraction
 
 Raw Fastq file from a DNA library
 
