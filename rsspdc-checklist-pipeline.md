@@ -65,9 +65,12 @@ Considerations for publishing a data analysis pipeline which may be used in rese
 - [ ] Project has suitable documentation
 	- [ ] 	🥉Bronze *(easy)*: Project has README file that either contains directly or links to resources which answer these questions:
 		- [x] What is the name or title of the project?
-		- [ ] Why did you make this pipeline?
-		- [ ] What problem does it address and how?
-		- [ ] Why would I want to use it, what differentiates it from its alternatives?
+		- [x] Why did you make this pipeline?
+		- [x] What problem does it address and how?
+		- [x] Why would I want to use it, what differentiates it from its alternatives?
+		- [x] Why did you make this pipeline?
+		- [x] What problem does it address and how?
+		- [x] Why would I want to use it, what differentiates it from its alternatives?
 		- [x] How do I install it? (with example)
 		- [ ] How do I use it? (with example)
 		- [ ] Where should I go in the project to find what I'm looking for?
@@ -152,7 +155,7 @@ Considerations for publishing a data analysis pipeline which may be used in rese
 
 - [x] Pipeline is Citable
 	- [x]  	🥉Bronze *(easy)*: A [CITATION.cff](https://citation-file-format.github.io/) file exists in the code repository to provide citational metadata about your project
-	- [ ]  	🥈Silver *(easy)*: bronze plus the project has persistent resolvable identifier such as a DOI, with which it can be referenced, which has been minted for the project using a tool like [zenodo](https://zenodo.org/) or [Software Heritage's Archive](https://www.softwareheritage.org/) to store an archival the project.
+	- [x]  	🥈Silver *(easy)*: bronze plus the project has persistent resolvable identifier such as a DOI, with which it can be referenced, which has been minted for the project using a tool like [zenodo](https://zenodo.org/) or [Software Heritage's Archive](https://www.softwareheritage.org/) to store an archival the project.
 	- [ ]  	🥇Gold *(intermediate)*: silver plus:
 		- [ ] Contributions are credited using a suitable contributor roles ontology or taxonomy (CROT) such as [CrediT](https://credit.niso.org/),[ScoRo](http://www.sparontologies.net/ontologies/scoro),[CRO](https://github.com/data2health/contributor-role-ontology), or [TaDiRAH](https://tadirah.info/).
 		- [ ] All contributors are identified by their [ORCID](https://orcid.org/) or other suitable persistent identifier
@@ -224,8 +227,8 @@ Considerations for publishing a data analysis pipeline which may be used in rese
 
 *How can you test your project so you can be confident it does what you think it does?*
 
-- [ ] Pipeline has been tested
-	- [ ]  	🥉Bronze *(easy)*: The pipeline runs and produces the expected result on a minimal example dataset
+- [x] Pipeline has been tested
+	- [x]  	🥉Bronze *(easy)*: The pipeline runs and produces the expected result on a minimal example dataset
 	- [ ]  	🥈Silver *(easy)*: Bronze plus:
 		- [ ] A wide variety of possible input parameter combinations are tested
 		- [ ] Datasets with different expected outcomes are tested, for example an output value is expected to be low in one dataset and high in another
@@ -290,7 +293,7 @@ How can you get third party endorsement of and expert feedback on your project?
 
 - [x] Pipeline has been appropriately reviewed
 	- [x]  	🥉Bronze *(easy)*: Someone other than you has checked over your pipeline and given you feedback
-	- [ ]  	🥈Silver *(intermediate)*: Someone other than you has successfully run your pipeline on different compute infrastructure and got the same results with test data
+	- [x]  	🥈Silver *(intermediate)*: Someone other than you has successfully run your pipeline on different compute infrastructure and got the same results with test data
 	- [ ]  	🥇Gold *(intermediate)*: You have published your pipeline in a pipeline repository which performs reviews of submissions such as nf-core
 	  (The snakmake workflow catalog's review practices would not be adequate for this purpose)
 	- [ ]  	🏆Platinum *(hard)*: Silver, gold and some from:
