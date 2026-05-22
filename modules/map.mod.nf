@@ -89,6 +89,57 @@ process STAR {
         """
 }
 
+process STARSOLO {
+
+    tag "$name"
+
+    label 'hugeMem'
+    label 'multiCore'
+
+    input:
+        tuple val(name), path(reads)
+        val (outputdir)
+        val (star_index)
+        val (whitelist)
+
+    output:
+        tuple val(name), path ("*Aligned.sortedByCoord.out.bam"),                          emit: bam
+        tuple val(name), path ("${name}_*_STARsolo_Solo.out/GeneFull_ExonOverIntron/raw"), emit: matrix
+        path "*Log.final.out",                                                             emit: stats
+
+    publishDir "${outputdir}",
+        mode: "link", overwrite: true, enabled: !params.no_output
+
+    script:
+        cores = 16
+        star_name = name + "_" + params.genome["name"]
+
+        """
+        module load star || echo "no module found"
+        module load samtools || echo "no module found"
+
+        STAR \\
+            --runThreadN ${cores} \\
+            --genomeDir ${star_index} \\
+            --readFilesIn ${reads[0]} ${reads[1]} \\
+            --readFilesCommand zcat \\
+            --outFileNamePrefix ${star_name}_STARsolo_ \\
+            --outSAMtype BAM SortedByCoordinate \\
+            --outSAMattributes NH HI AS nM CB UB GX GN \\
+            --soloBarcodeMate 2 \\
+            --clip5pNbases 0 37 \\
+            --soloType CB_UMI_Simple \\
+            --soloCBstart 1 \\
+            --soloCBlen 29 \\
+            --soloUMIstart 30 \\
+            --soloUMIlen 8 \\
+            --soloFeatures GeneFull_ExonOverIntron \\
+            --soloCBwhitelist ${whitelist} \\
+            --soloCBmatchWLtype 1MM \\
+            --soloUMIdedup 1MM_CR
+        """
+}
+
 // for mapping to the barcode genome
 process BOWTIE_BC {
 
