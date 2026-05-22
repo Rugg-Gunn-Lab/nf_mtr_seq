@@ -87,6 +87,8 @@ include { FASTQC as FASTQC2 }                   from './modules/fastqc.mod.nf'
 include { FASTQC as FASTQC3 }                   from './modules/fastqc.mod.nf'                      
 include { SAM_TO_FASTQ }                        from './modules/yang_processes.mod.nf'
 include { SAM_TO_COV_FASTQ_PAIRED }             from './modules/yang_processes.mod.nf'
+include { SAM_TO_COV_FASTQ_STARSOLO }           from './modules/yang_processes.mod.nf'
+include { STARSOLO }                            from './modules/map.mod.nf'
 include { SUMMARIZE_MAPPED_READ_CELLS }         from './modules/yang_processes.mod.nf'
 include { SAMTOOLS_FILT }                       from './modules/samtools.mod.nf'
 include { SAMTOOLS_SORT }                       from './modules/samtools.mod.nf'                    params(no_output: true)
@@ -147,6 +149,7 @@ workflow {
             TRIM_GALORE (REACHTOOLS_COMBINE2.out.comb, params.outdir, trim_galore_args1, params.verbose)
             FASTQC2(TRIM_GALORE.out.reads, params.outdir, params.fastqc_args, params.verbose)
             BOWTIE_BC (TRIM_GALORE.out.reads, params.outdir, bowtie_bc_args_stringent, barcode_genome)
+            // return // stop here for dev
         } else if (params.condition == "relax") {
             REACHTOOLS_COMBINE2 (file_ch, params.outdir)
             FASTQC2 (REACHTOOLS_COMBINE2.out.comb, params.outdir, params.fastqc_args, params.verbose)
@@ -156,6 +159,7 @@ workflow {
             TRIM_GALORE (REACHTOOLS_COMBINE3.out.comb, params.outdir, trim_galore_args1, params.verbose)
             FASTQC2(TRIM_GALORE.out.reads, params.outdir, params.fastqc_args, params.verbose)
             BOWTIE_BC (TRIM_GALORE.out.reads, params.outdir, bowtie_bc_args_stringent, barcode_genome)
+            // return // stop here for dev
         } else if (params.condition == "bulk") {
             REACHTOOLS_COMBINE_BULK (file_ch, params.outdir)
             FASTQC2 (REACHTOOLS_COMBINE_BULK.out.comb, params.outdir, params.fastqc_args, params.verbose)
@@ -172,11 +176,19 @@ workflow {
                 R2_length = R2_length.map { it + bulk_extension }
             }
 
-            SAM_TO_COV_FASTQ_PAIRED(BOWTIE_BC.out.sam, R2_length, params.outdir)            
-            TRIM_GALORE2(SAM_TO_COV_FASTQ_PAIRED.out.reads, params.outdir, trim_galore_args_paired, params.verbose)            
+            if (params.type == "dna"){
+                SAM_TO_COV_FASTQ_PAIRED(BOWTIE_BC.out.sam, R2_length, params.outdir)
+                TRIM_GALORE2(SAM_TO_COV_FASTQ_PAIRED.out.reads, params.outdir, trim_galore_args_paired, params.verbose) 
+            } else if (params.type == "rna){
+                SAM_TO_COV_FASTQ_STARSOLO(BOWTIE_BC.out.sam, R2_length, params.outdir)
+            }          
+
         } else {
-            SAM_TO_FASTQ(BOWTIE_BC.out.sam, params.outdir)
-            TRIM_GALORE2(SAM_TO_FASTQ.out.reads, params.outdir, trim_galore_args_paired, params.verbose)
+            // TO-DO: HOW DO WE DEAL WITH NON-PAIRED MODES?
+            println("This branch currently only works in paired mode")
+            exit 1
+            //SAM_TO_FASTQ(BOWTIE_BC.out.sam, params.outdir)
+            //TRIM_GALORE2(SAM_TO_FASTQ.out.reads, params.outdir, trim_galore_args_paired, params.verbose)
         }
 
         FASTQC3(file_ch, params.outdir, params.fastqc_args, params.verbose)
@@ -207,7 +219,8 @@ workflow {
             } 
         } else if (params.type == "rna") {
 
-            RNA_MAP_PROCESS(TRIM_GALORE2.out.reads)
+            STARSOLO(SAM_TO_COV_FASTQ_STARSOLO.out.reads)
+            //RNA_MAP_PROCESS(TRIM_GALORE2.out.reads)
 
         } else {
             println("Shouldn't have got to here, something's gone wrong with the data_type " + params.type + "\n")
