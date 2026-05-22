@@ -61,6 +61,26 @@ process SAM_TO_COV_FASTQ_PAIRED {
         """
 }
 
+process SAM_TO_COV_FASTQ_STARSOLO {
+
+    input:
+        tuple val(name), path(mapped_reads)
+        val(R2_length)
+        val (outputdir)
+
+	output:
+	    tuple val(name), path ("*fq.gz"),  emit: reads
+
+   // publishDir "${outputdir}/nf_chosen_outputs",
+	//	mode: "link", overwrite: true
+
+    script:
+
+        """
+        perl ${script_path}/sam2covFastq.starsolo.pl ${mapped_reads} ${R2_length}  
+        """
+}
+
 process SAM_TO_FASTQ {
 
     //label 'mem40G'
