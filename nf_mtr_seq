@@ -69,6 +69,7 @@ if (params.type != "dna" & params.type != "rna"){
     System.exit(1)
 }
 
+whitelist = "${workflow.projectDir}/cell_id/cell.id.rna.whitelist.txt"
 barcode_genome = get_BC_genome(params.type)
 genome = getGenome(params.genome)
 star_index = genome["star"]
@@ -219,7 +220,7 @@ workflow {
             } 
         } else if (params.type == "rna") {
 
-            STARSOLO(SAM_TO_COV_FASTQ_STARSOLO.out.reads)
+            STARSOLO(SAM_TO_COV_FASTQ_STARSOLO.out.reads, params.outdir, star_index, whitelist)
             //RNA_MAP_PROCESS(TRIM_GALORE2.out.reads)
 
         } else {
