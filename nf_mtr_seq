@@ -89,7 +89,7 @@ include { FASTQC as FASTQC3 }                   from './modules/fastqc.mod.nf'
 include { SAM_TO_FASTQ }                        from './modules/yang_processes.mod.nf'
 include { SAM_TO_COV_FASTQ_PAIRED }             from './modules/yang_processes.mod.nf'
 include { SAM_TO_COV_FASTQ_STARSOLO }           from './modules/yang_processes.mod.nf'
-include { STARSOLO }                            from './modules/map.mod.nf'
+include { STARSOLO }                            from './modules/map.mod.nf'                         params(genome : genome)
 include { SUMMARIZE_MAPPED_READ_CELLS }         from './modules/yang_processes.mod.nf'
 include { SAMTOOLS_FILT }                       from './modules/samtools.mod.nf'
 include { SAMTOOLS_SORT }                       from './modules/samtools.mod.nf'                    params(no_output: true)
