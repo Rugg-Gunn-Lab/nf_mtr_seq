@@ -180,7 +180,7 @@ workflow {
             if (params.type == "dna"){
                 SAM_TO_COV_FASTQ_PAIRED(BOWTIE_BC.out.sam, R2_length, params.outdir)
                 TRIM_GALORE2(SAM_TO_COV_FASTQ_PAIRED.out.reads, params.outdir, trim_galore_args_paired, params.verbose) 
-            } else if (params.type == "rna){
+            } else if (params.type == "rna"){
                 SAM_TO_COV_FASTQ_STARSOLO(BOWTIE_BC.out.sam, R2_length, params.outdir)
             }          
 
