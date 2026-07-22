@@ -70,6 +70,7 @@ if (params.type != "dna" & params.type != "rna"){
 }
 
 whitelist = "${workflow.projectDir}/cell_id/cell.id.rna.whitelist.txt"
+cellid_fa = "${workflow.projectDir}/cell_id/cell.id.rna.fa"
 barcode_genome = get_BC_genome(params.type)
 genome = getGenome(params.genome)
 star_index = genome["star"]
@@ -97,6 +98,7 @@ include { GET_R2_LENGTH }                       from './modules/yang_processes.m
 include { DNA_PAIRED_BULK }                     from './subworkflows/dna_paired_bulk'               params(outdir: params.outdir, verbose: params.verbose)
 include { DNA_STRINGENT_RELAX }                 from './subworkflows/dna_stringent_relax'           params(outdir: params.outdir, verbose: params.verbose)
 include { RNA_MAP_PROCESS }                     from './subworkflows/rna_map_process'               params(outdir: params.outdir, verbose: params.verbose, star_index: star_index, condition: params.condition, gtf_file: gtf_file)
+include { CB_CHAR_TO_NUMERIC }			from './modules/yang_processes.mod.nf'
 
 trim_galore_args_paired = ''
 trim_galore_args1 = '--cores 4 --quality 30 --stringency 5 --length 28'
@@ -221,6 +223,7 @@ workflow {
         } else if (params.type == "rna") {
 
             STARSOLO(SAM_TO_COV_FASTQ_STARSOLO.out.reads, params.outdir, star_index, whitelist)
+	    CB_CHAR_TO_NUMERIC(STARSOLO.out.matrix, params.outdir, cellid_fa)
             //RNA_MAP_PROCESS(TRIM_GALORE2.out.reads)
 
         } else {

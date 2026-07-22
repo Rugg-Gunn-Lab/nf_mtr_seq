@@ -327,3 +327,29 @@ process REMOVE_PILEUPS {
         python3 ${script_path}/remove_pileups.py ${mapped_reads} ${tally} ${name}_sorted_rmdup_rmpiles.bam ${cutoff}
         """
 }
+
+process CB_CHAR_TO_NUMERIC {
+
+    tag "$name"
+
+    input:
+        tuple val(name), path(raw_dir)
+        val (outputdir)
+        val (cellid_fa)
+
+    output:
+        tuple val(name), path("${name}_numeric_cb"), emit: matrix
+
+    publishDir "${outputdir}", mode: "copy", overwrite: true
+
+    script:
+        """
+        mkdir ${name}_numeric_cb
+
+        python3 ${script_path}/cb_char_to_numeric.py ${cellid_fa} ${raw_dir}/barcodes.tsv ${name}_numeric_cb/barcodes.tsv.gz
+
+        gzip -c ${raw_dir}/barcodes.tsv > ${name}_numeric_cb/barcodes.char.tsv.gz
+        gzip -c ${raw_dir}/features.tsv > ${name}_numeric_cb/features.tsv.gz
+        gzip -c ${raw_dir}/matrix.mtx  > ${name}_numeric_cb/matrix.mtx.gz
+        """
+}
