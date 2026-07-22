@@ -42,6 +42,8 @@ samtools_filt_args = "--threads 4 -q 10 -f 0x2"
 // Only extract the fragment related columns and cellids, umi
 process FILTER_READS {
 
+    label 'bigMem' // 20GB
+
     input:
         tuple val(name), path(mapped_reads)
         val (outputdir)
@@ -55,11 +57,14 @@ process FILTER_READS {
     script:
 
         """
+	set -o pipefail
         awk '\$1==\$4 {print \$0}' ${mapped_reads}  | cut -f 1,2,6,7,9 | sort -k1,1 -k2,2n -k3,3n | pigz -p 30 > ${name}_sorted.bam.bed.gz
         """
 }
 
 process SORT_DEDUP {
+
+    label 'bigMem' // 20GB
 
     input:
         tuple val(name), path(reads)
@@ -74,6 +79,7 @@ process SORT_DEDUP {
     script:
 
         """
+	set -o pipefail
         zcat ${reads} | sort | uniq | pigz -p 30 > ${name}_sorted_rmdup.reads.split.bc.uniq.tsv.gz
         """
 }
