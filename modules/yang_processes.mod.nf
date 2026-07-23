@@ -26,7 +26,7 @@ process GET_R2_LENGTH {
         tuple val(name), path(reads)
 
 	output:
-		env (R2_len),    emit: read2_length 
+		tuple val(name), env (R2_len),    emit: read2_length 
 
     script:
         if (reads instanceof List) {
@@ -351,5 +351,23 @@ process CB_CHAR_TO_NUMERIC {
         gzip -c ${raw_dir}/barcodes.tsv > ${name}_numeric_cb/barcodes.char.tsv.gz
         gzip -c ${raw_dir}/features.tsv > ${name}_numeric_cb/features.tsv.gz
         gzip -c ${raw_dir}/matrix.mtx  > ${name}_numeric_cb/matrix.mtx.gz
+        """
+}
+
+process MERGE_LANES {
+
+    tag "$name"
+
+    input:
+        tuple val(name), path(r1s, stageAs: 'r1/*'), path(r2s, stageAs: 'r2/*')
+        val (outputdir)
+
+    output:
+        tuple val(name), path("${name}_merged_cov.R*.fq.gz"), emit: reads
+
+    script:
+        """
+        cat r1/* > ${name}_merged_cov.R1.fq.gz
+        cat r2/* > ${name}_merged_cov.R2.fq.gz
         """
 }

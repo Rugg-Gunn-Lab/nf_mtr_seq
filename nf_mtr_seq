@@ -37,6 +37,7 @@ params.list_genomes = false
 params.help = false
 params.no_output = false
 params.fastqc_args = ''
+params.merge_lanes = true
 
 // The number of bases to add to R2 length
 bulk_extension = 99
@@ -98,7 +99,8 @@ include { GET_R2_LENGTH }                       from './modules/yang_processes.m
 include { DNA_PAIRED_BULK }                     from './subworkflows/dna_paired_bulk'               params(outdir: params.outdir, verbose: params.verbose)
 include { DNA_STRINGENT_RELAX }                 from './subworkflows/dna_stringent_relax'           params(outdir: params.outdir, verbose: params.verbose)
 include { RNA_MAP_PROCESS }                     from './subworkflows/rna_map_process'               params(outdir: params.outdir, verbose: params.verbose, star_index: star_index, condition: params.condition, gtf_file: gtf_file)
-include { CB_CHAR_TO_NUMERIC }			from './modules/yang_processes.mod.nf'
+include { CB_CHAR_TO_NUMERIC }			        from './modules/yang_processes.mod.nf'
+include { MERGE_LANES }                         from './modules/yang_processes.mod.nf'
 
 trim_galore_args_paired = ''
 trim_galore_args1 = '--cores 4 --quality 30 --stringency 5 --length 28'
@@ -120,6 +122,11 @@ if (no_of_file_pairs == 0){
     println("\n No input files found, files must be in the format (R[1234]).fq.gz \n")
     println("Supplied files were " + args + "\n")
     System.exit(1)
+}
+
+def getMergeKey(name) {
+    def m = (name =~ /(SP\d+_S[1-8])/)
+    return m ? m[0][1] : name
 }
 
 log.info """\
@@ -144,6 +151,10 @@ file_ch =  Channel.fromFilePairs( getFileBaseNames(args), size:-1)
 workflow { 
 
     main:
+
+        // TEMP
+        file_ch.map { n, f -> tuple(getMergeKey(n), n) }.groupTuple().view()
+        return
 
         FASTQC(file_ch, params.outdir, params.fastqc_args, params.verbose)
 
@@ -174,17 +185,20 @@ workflow {
         if(params.condition == "paired" | params.condition == "bulk") {
 
             GET_R2_LENGTH(file_ch)
-            R2_length = GET_R2_LENGTH.out.read2_length.toInteger()
-            if(params.condition == "bulk") {
-                R2_length = R2_length.map { it + bulk_extension }
+            r2_ch = GET_R2_LENGTH.out.read2_length.map { n, len -> tuple(n, len.toInteger()) }
+            if (params.condition == "bulk") {
+                r2_ch = r2_ch.map { n, len -> tuple(n, len + bulk_extension) }
             }
+            sam_with_len = BOWTIE_BC.out.sam.join(r2_ch)
 
             if (params.type == "dna"){
-                SAM_TO_COV_FASTQ_PAIRED(BOWTIE_BC.out.sam, R2_length, params.outdir)
-                TRIM_GALORE2(SAM_TO_COV_FASTQ_PAIRED.out.reads, params.outdir, trim_galore_args_paired, params.verbose) 
+                SAM_TO_COV_FASTQ_PAIRED(sam_with_len.map{n,s,l -> tuple(n,s)}, 
+                                        sam_with_len.map{n,s,l -> l}, params.outdir)
+                TRIM_GALORE2(SAM_TO_COV_FASTQ_PAIRED.out.reads, params.outdir, trim_galore_args_paired, params.verbose)
             } else if (params.type == "rna"){
-                SAM_TO_COV_FASTQ_STARSOLO(BOWTIE_BC.out.sam, R2_length, params.outdir)
-            }          
+                SAM_TO_COV_FASTQ_STARSOLO(sam_with_len.map{n,s,l -> tuple(n,s)},
+                                            sam_with_len.map{n,s,l -> l}, params.outdir)
+            }        
 
         } else {
             // TO-DO: HOW DO WE DEAL WITH NON-PAIRED MODES?
@@ -221,10 +235,22 @@ workflow {
 
             } 
         } else if (params.type == "rna") {
+            if (params.merge_lanes) {
+                merged_ch = SAM_TO_COV_FASTQ_STARSOLO.out.reads
+                    .map { name, files ->
+                        tuple( getMergeKey(name),
+                            files.find { it.name.contains('_cov.R1.') },
+                            files.find { it.name.contains('_cov.R2.') } )
+                    }
+                    .groupTuple()
+                MERGE_LANES(merged_ch, params.outdir)
+                starsolo_in = MERGE_LANES.out.reads
+            } else {
+                starsolo_in = SAM_TO_COV_FASTQ_STARSOLO.out.reads
+            }
 
-            STARSOLO(SAM_TO_COV_FASTQ_STARSOLO.out.reads, params.outdir, star_index, whitelist)
-	    CB_CHAR_TO_NUMERIC(STARSOLO.out.matrix, params.outdir, cellid_fa)
-            //RNA_MAP_PROCESS(TRIM_GALORE2.out.reads)
+            STARSOLO(starsolo_in, params.outdir, star_index, whitelist)
+            CB_CHAR_TO_NUMERIC(STARSOLO.out.matrix, params.outdir, cellid_fa)
 
         } else {
             println("Shouldn't have got to here, something's gone wrong with the data_type " + params.type + "\n")
