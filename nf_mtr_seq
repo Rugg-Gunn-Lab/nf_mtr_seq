@@ -152,10 +152,6 @@ workflow {
 
     main:
 
-        // TEMP
-        file_ch.map { n, f -> tuple(getMergeKey(n), n) }.groupTuple().view()
-        return
-
         FASTQC(file_ch, params.outdir, params.fastqc_args, params.verbose)
 
         if(params.condition == "stringent") {
