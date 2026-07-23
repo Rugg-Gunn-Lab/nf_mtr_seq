@@ -13,7 +13,7 @@ We have the naming convention {SAMPLE}_SP{1-2}_S{1-8}_S1{1-6}:
 - The first S (S1-S8) represents sublibraries - distinct cell populations
 - The second S (S1-6) represents the same cells sequenced over different 
 
-The aim is to collapse S1-6 together, as they are the same cells, so we are left with SP1-2. 
+The aim is to collapse S1-6 together, as they are the same cells, so we are left with SP{1-2}_S{1-8}. 
 
 Note: if we want to merge across lanes, we just need to include the other folders/files into the pipeline input, and it will collapse all SP1-S1, SP1-S2 etc, across different sequencing lanes together. 
 
