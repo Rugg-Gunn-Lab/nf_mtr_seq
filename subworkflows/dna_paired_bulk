@@ -105,7 +105,7 @@ workflow DNA_PAIRED_BULK {
         READS_QC_EXTRACT_BC(FILTER_READS.out.reads, params.outdir)
         SORT_DEDUP(READS_QC_EXTRACT_BC.out.reads, params.outdir)
 
-        SUMMARIZE_MAPPED_READ_CELLS(trimmed_fastq, mapped_reads, params.outdir)
+        SUMMARIZE_MAPPED_READ_CELLS(trimmed_fastq.join(mapped_reads), params.outdir)
 
     emit:
         sorted = SORT_DEDUP.out.reads

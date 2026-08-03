@@ -258,8 +258,7 @@ process SUMMARIZE_MAPPED_READ_CELLS {
     label 'hugeMem' // 80GB
 
     input:
-        tuple val(name), path(fq_file)
-        tuple val(name), path(bam)
+        tuple val(name), path(fq_file), path (bam)
         val (outputdir)
 
     output:
