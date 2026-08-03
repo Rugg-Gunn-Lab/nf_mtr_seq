@@ -37,6 +37,35 @@ params.list_genomes = false
 params.help = false
 params.no_output = false
 params.fastqc_args = ''
+params.soloTE = false
+params.soloTE_bed = ""
+params.soloTE_dir = ""
+
+if (params.soloTE) {
+    if (params.type != "rna") {
+        println("\n--soloTE is only valid with --type rna\n")
+        System.exit(1)
+    }
+    if (!params.soloTE_bed) {
+        println("\n--soloTE requires --soloTE_bed <file>")
+        println("This is a RepeatMasker-derived BED produced by SoloTE_RepeatMasker_to_BED.py")
+        println("and must match the genome selected with --genome\n")
+        System.exit(1)
+    }
+    if (!new File(params.soloTE_bed).exists()) {
+        println("\nTE annotation BED not found: " + params.soloTE_bed)
+        println("Note: relative paths resolve against the launch directory - use an absolute path.\n")
+        System.exit(1)
+    }
+    if (!params.soloTE_dir) {
+        println("\n--soloTE requires --soloTE_dir <path to SoloTE dir>\n")
+        System.exit(1)
+    }
+    if (!new File("${params.soloTE_dir}/SoloTE_pipeline.py").exists()) {
+        println("\nSoloTE_pipeline.py not found in " + params.soloTE_dir + "\n")
+        System.exit(1)
+    }
+}
 
 // The number of bases to add to R2 length
 bulk_extension = 99
@@ -91,6 +120,8 @@ include { SAM_TO_FASTQ }                        from './modules/yang_processes.m
 include { SAM_TO_COV_FASTQ_PAIRED }             from './modules/yang_processes.mod.nf'
 include { SAM_TO_COV_FASTQ_STARSOLO }           from './modules/yang_processes.mod.nf'
 include { STARSOLO }                            from './modules/map.mod.nf'                         params(genome : genome)
+include { STARSOLO_TE }                         from './modules/map.mod.nf'    params(genome : genome)
+include { SOLOTE }                              from './modules/solote.mod.nf'
 include { SUMMARIZE_MAPPED_READ_CELLS }         from './modules/yang_processes.mod.nf'
 include { SAMTOOLS_FILT }                       from './modules/samtools.mod.nf'
 include { SAMTOOLS_SORT }                       from './modules/samtools.mod.nf'                    params(no_output: true)
@@ -98,7 +129,7 @@ include { GET_R2_LENGTH }                       from './modules/yang_processes.m
 include { DNA_PAIRED_BULK }                     from './subworkflows/dna_paired_bulk'               params(outdir: params.outdir, verbose: params.verbose)
 include { DNA_STRINGENT_RELAX }                 from './subworkflows/dna_stringent_relax'           params(outdir: params.outdir, verbose: params.verbose)
 include { RNA_MAP_PROCESS }                     from './subworkflows/rna_map_process'               params(outdir: params.outdir, verbose: params.verbose, star_index: star_index, condition: params.condition, gtf_file: gtf_file)
-include { CB_CHAR_TO_NUMERIC }			from './modules/yang_processes.mod.nf'
+include { CB_CHAR_TO_NUMERIC }			        from './modules/yang_processes.mod.nf'
 
 trim_galore_args_paired = ''
 trim_galore_args1 = '--cores 4 --quality 30 --stringency 5 --length 28'
@@ -223,8 +254,13 @@ workflow {
         } else if (params.type == "rna") {
 
             STARSOLO(SAM_TO_COV_FASTQ_STARSOLO.out.reads, params.outdir, star_index, whitelist)
-	    CB_CHAR_TO_NUMERIC(STARSOLO.out.matrix, params.outdir, cellid_fa)
+	        CB_CHAR_TO_NUMERIC(STARSOLO.out.matrix, params.outdir, cellid_fa)
             //RNA_MAP_PROCESS(TRIM_GALORE2.out.reads)
+
+            if (params.soloTE) {
+                STARSOLO_TE(SAM_TO_COV_FASTQ_STARSOLO.out.reads, params.outdir, star_index, whitelist)
+                SOLOTE(STARSOLO_TE.out.bam, params.outdir, params.soloTE_bed, params.soloTE_dir)
+            }
 
         } else {
             println("Shouldn't have got to here, something's gone wrong with the data_type " + params.type + "\n")
@@ -287,6 +323,16 @@ def helpMessage() {
 
       --condition [str]               stringent, relaxed, bulk or paired [Default: stringent]
                                       For RNA, recommended option is stringent.
+
+      --soloTE                        RNA only. Additionally runs STARsolo with multimapper-permissive
+                                      settings, then quantifies locus-specific transposable element
+                                      expression with SoloTE. Requires --soloTE_bed and --soloTE_dir.
+
+      --soloTE_bed [str]              REQUIRED with --soloTE. Absolute path to a RepeatMasker-derived
+                                      BED file matching --genome, generated with SoloTE's
+                                      SoloTE_RepeatMasker_to_BED.py script.
+
+      --soloTE_dir [str]              Path to the SoloTE installation (local git cloned dir).
                                         
     
      Other options:
