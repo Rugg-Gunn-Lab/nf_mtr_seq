@@ -67,10 +67,12 @@ while(<IN>){
 close IN;
 
 
-open IN, "samtools view $bam|" or die "Couldn't open bam file: $!";
+open IN, "samtools view -F 0x900 $bam|" or die "Couldn't open bam file: $!";
 while(<IN>){
 	chomp;
 	my @tmp = split/\s+/, $_;
+	my $flag = $tmp[1];
+	next if ($flag & 128);  # dont double count read 2
 	my $umi = substr($tmp[0], -8, 9);
 	my $cell_id = substr($tmp[0], -20, 11);
 	my $chr = $tmp[2];
