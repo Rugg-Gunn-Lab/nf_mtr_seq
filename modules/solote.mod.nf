@@ -8,6 +8,8 @@ process SOLOTE {
 
     label 'hugeMem'
     label 'multiCore'
+	
+    conda params.soloTE_conda
 
     input:
         tuple val(name), path(bam)
@@ -24,14 +26,11 @@ process SOLOTE {
     script:
         cores = 8
         """
-        module load samtools || echo "no module found"
-        module load bedtools || echo "no module found"
-        module load python  || echo "no module found"
-
         python ${solote_dir}/SoloTE_pipeline.py \\
             --threads ${cores} \\
             --bam ${bam} \\
             --teannotation ${te_bed} \\
+	    --outputdir . \\
             --outputprefix ${name}
         """
 }

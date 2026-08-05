@@ -1,0 +1,14 @@
+name: solote
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.10
+  - pysam
+  - pandas
+  - numpy
+  - scipy
+  - samtools>=1.15
+  - bedtools>=2.30
+  - r-base
+  - r-matrix

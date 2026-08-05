@@ -186,7 +186,7 @@ process STARSOLO_TE {
             --soloCBlen 29 \\
             --soloUMIstart 30 \\
             --soloUMIlen 8 \\
-            --soloFeatures GeneFull_ExonOverIntron \\
+            --soloFeatures Gene \\
             --soloCBwhitelist ${whitelist} \\
             --soloCBmatchWLtype 1MM \\
             --soloUMIdedup 1MM_CR
