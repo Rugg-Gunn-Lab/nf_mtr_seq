@@ -2,7 +2,7 @@
 
 # Nextflow Pipeline for processing scMTR-seq (single-cell Multi-Targets and mRNA sequencing) data
 
-**Please see the [usage-instructions branch]([https://github.com/OWNER/REPO/tree/usage-instructions](https://github.com/Rugg-Gunn-Lab/nf_mtr_seq/tree/usage-instructions)) for detailed usage instructions, and the [Dev branch]([https://github.com/OWNER/REPO/tree/Dev](https://github.com/Rugg-Gunn-Lab/nf_mtr_seq/tree/dev)) for the latest development version.**
+**Please see the [usage-instructions branch](https://github.com/Rugg-Gunn-Lab/nf_mtr_seq/tree/usage-instructions) for detailed usage instructions, and the [Dev branch](https://github.com/Rugg-Gunn-Lab/nf_mtr_seq/tree/dev) for the latest development version.**
 
 Usage with test data:
 ```
